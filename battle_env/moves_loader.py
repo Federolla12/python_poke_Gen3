@@ -1,7 +1,6 @@
 from __future__ import annotations
 import json
 from pathlib import Path
-from urllib.request import urlopen
 import pandas as pd
 from .move import Move
 
@@ -55,6 +54,7 @@ def _load_xlsx_data() -> None:
                 except (ValueError, TypeError):
                     pp = 1
                 data[key] = {
+                    "name": str(row["Name"]),
                     "type": str(row["Type"]).capitalize(),
                     "power": power,
                     "accuracy": acc,
@@ -66,14 +66,15 @@ def _load_xlsx_data() -> None:
 
 
 def _load_name_map() -> None:
+    """Previously loaded move name aliases from the network.
+
+    The new spreadsheet contains all Gen 1-3 moves so this mapping is now
+    unnecessary. The function is kept for backward compatibility but simply
+    initializes an empty dictionary without performing any network calls.
+    """
     global _name_map
     if _name_map is None:
-        try:
-            with urlopen("https://pokeapi.co/api/v2/move?limit=1000") as resp:
-                data = json.load(resp)
-            _name_map = {m["name"].replace("-", ""): m["name"] for m in data["results"]}
-        except Exception:  # pragma: no cover - network
-            _name_map = {}
+        _name_map = {}
 
 
 def _save_cache() -> None:
@@ -82,29 +83,19 @@ def _save_cache() -> None:
 
 
 def _fetch_move(name: str) -> dict:
+    """Retrieve move data from the local spreadsheet only.
+
+    Network access to the PokeAPI was previously used as a fall back, but the
+    updated ``Moves_list.xlsx`` file already contains all move data for
+    generations 1 through 3.  If a move is missing from the spreadsheet this
+    function simply returns an empty dictionary.
+    """
     slug = name.lower()
     _load_xlsx_data()
-    if slug.replace(" ", "").replace("-", "") in _xlsx_data:
-        return _xlsx_data[slug.replace(" ", "").replace("-", "")]
-    try:
-        with urlopen(f"https://pokeapi.co/api/v2/move/{slug}") as resp:
-            data = json.load(resp)
-    except Exception:
-        _load_name_map()
-        slug = _name_map.get(slug, slug)
-        with urlopen(f"https://pokeapi.co/api/v2/move/{slug}") as resp:
-            data = json.load(resp)
-    entry = {
-        "type": data["type"]["name"].capitalize(),
-        "power": data["power"] or 0,
-        "accuracy": data["accuracy"] or 100,
-        "pp": data["pp"] or 1,
-        "priority": data["priority"] or 0,
-        "damage_class": data["damage_class"]["name"],
-    }
-    _cache[name.lower()] = entry
-    _save_cache()
-    return entry
+    canon = slug.replace(" ", "").replace("-", "")
+    if canon in _xlsx_data:
+        return _xlsx_data[canon]
+    return {}
 
 
 def _get_move(name: str) -> dict:
@@ -116,16 +107,18 @@ def _get_move(name: str) -> dict:
     canon = ident.replace(" ", "").replace("-", "")
     if canon in _xlsx_data:
         return _xlsx_data[canon]
-    try:
-        return _fetch_move(ident)
-    except Exception:  # pragma: no cover - network errors
-        return {}
+    # If the move was not found in the JSON file or the spreadsheet simply
+    # return an empty dictionary. Previously this attempted a network lookup
+    # using the PokeAPI, but the local spreadsheet now contains all required
+    # data for generations 1-3.
+    return {}
 
 
 def load_moves(path: str | Path | None = None) -> dict[str, Move]:
     """Load moves from JSON file and instantiate Move objects."""
     if path is None:
         path = Path(__file__).parent.parent / "data" / "moves.json"
+    _load_xlsx_data()
     data = json.loads(Path(path).read_text())
     moves: dict[str, Move] = {}
     for ident, meta in data.items():
@@ -161,4 +154,26 @@ def load_moves(path: str | Path | None = None) -> dict[str, Move]:
             else ("Physical" if mv.type in PHYSICAL_TYPES else "Special")
         )
         moves[mv.name.lower()] = mv
+
+    # Add any additional moves present in the spreadsheet but missing from the
+    # JSON file.  This avoids the need for network lookups.
+    for ident, meta in _xlsx_data.items():
+        if ident not in moves:
+            mv_power = meta.get("power", 0)
+            mv_type = meta.get("type", "Normal")
+            mv = Move(
+                name=meta.get("name", ident),
+                move_type=mv_type,
+                power=mv_power,
+                category=(
+                    "Status"
+                    if mv_power == 0
+                    else ("Physical" if mv_type in PHYSICAL_TYPES else "Special")
+                ),
+                accuracy=meta.get("accuracy", 100),
+                priority=meta.get("priority", 0),
+                max_pp=meta.get("pp", 1),
+            )
+            moves[mv.name.lower()] = mv
+
     return moves
