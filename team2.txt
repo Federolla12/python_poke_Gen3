@@ -1,0 +1,20 @@
+Marowak (M) @ Thick Club  
+Ability: Rock Head  
+Happiness: 0  
+EVs: 252 HP / 252 Atk / 4 SpD  
+Adamant Nature  
+- Body Slam  
+- Bonemerang  
+- Ancient Power  
+- Earthquake  
+
+Politoed (F) @ Leftovers  
+Ability: Water Absorb  
+Happiness: 0  
+EVs: 252 HP / 252 Atk / 4 SpA  
+Brave Nature  
+- Blizzard  
+- Haze  
+- Facade  
+- Brick Break  
+
