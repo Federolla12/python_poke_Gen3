@@ -1,0 +1,18 @@
+Machamp @ Choice Band  
+Ability: Guts  
+EVs: 252 HP / 252 Atk / 4 Spe  
+Serious Nature  
+- Body Slam  
+- Brick Break  
+- Earthquake  
+- Counter  
+
+Nidoking (M) @ Leftovers  
+Ability: Poison Point  
+EVs: 252 HP / 252 SpD / 4 Spe  
+Brave Nature  
+- Body Slam  
+- Brick Break  
+- Counter  
+- Disable  
+

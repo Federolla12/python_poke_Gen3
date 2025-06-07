@@ -1,0 +1,18 @@
+Miltank (F) @ Lum Berry
+Ability: Thick Fat
+EVs: 252 HP / 4 Atk / 252 Def
+Lax Nature
+- Rest
+- Body Slam
+- Blizzard
+- Curse
+
+Articuno @ Twisted Spoon
+Ability: Pressure
+EVs: 4 Atk / 252 SpA / 252 Spe
+Mild Nature
+- Agility
+- Blizzard
+- Double-Edge
+- Extrasensory
+
