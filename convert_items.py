@@ -51,17 +51,32 @@ fs.writeFileSync(outPath, JSON.stringify(plain, null, 2));
         ], check=True)
 
 
+def convert(ts_file: Path) -> dict:
+    """Convert a Showdown ``items.ts`` file into a plain dictionary."""
+    sanitized = sanitize_ts(ts_file)
+    with tempfile.NamedTemporaryFile("r+", suffix=".json", delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+    try:
+        run_node(sanitized, tmp_path)
+        return json.loads(tmp_path.read_text())
+    finally:
+        sanitized.unlink(missing_ok=True)
+        tmp_path.unlink(missing_ok=True)
+
+
 def main():
     repo_root = Path(__file__).resolve().parent
-    ts_file = repo_root / "3gen_env_Showdown" / "items.ts"
     out_dir = repo_root / "data"
     out_dir.mkdir(exist_ok=True)
     out_file = out_dir / "items.json"
-    sanitized = sanitize_ts(ts_file)
-    try:
-        run_node(sanitized, out_file)
-    finally:
-        sanitized.unlink(missing_ok=True)
+
+    data: dict[str, dict] = {}
+    for sub in ["3gen_env_Showdown", "2gen_env_Showdown"]:
+        ts_file = repo_root / sub / "items.ts"
+        if ts_file.exists():
+            data.update(convert(ts_file))
+
+    out_file.write_text(json.dumps(data, indent=2))
     print(f"Wrote {out_file}")
 
 

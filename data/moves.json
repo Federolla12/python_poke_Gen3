@@ -41,22 +41,14 @@
   "beatup": {
     "id": "beatup",
     "inherit": true,
-    "onModifyMove": "onModifyMove(move, pokemon) {\n\t\t\tpokemon.addVolatile('beatup');\n\t\t\tmove.type = '???';\n\t\t\tmove.category = 'Special';\n\t\t\tmove.allies = pokemon.side.pokemon.filter(ally => !ally.fainted && !ally.status);\n\t\t\tmove.multihit = move.allies.length;\n\t\t}",
-    "condition": {
-      "duration": 1,
-      "onModifySpAPriority": -101,
-      "onModifySpA": "onModifySpA(atk, pokemon, defender, move) {\n\t\t\t\t// https://www.smogon.com/forums/posts/8992145/\n\t\t\t\t// this.add('-activate', pokemon, 'move: Beat Up', '[of] ' + move.allies[0].name);\n\t\t\t\tthis.event.modifier = 1;\n\t\t\t\treturn this.dex.species.get(move.allies.shift().set.species).baseStats.atk;\n\t\t\t}",
-      "onFoeModifySpDPriority": -101,
-      "onFoeModifySpD": "onFoeModifySpD(def, pokemon) {\n\t\t\t\tthis.event.modifier = 1;\n\t\t\t\treturn this.dex.species.get(pokemon.set.species).baseStats.def;\n\t\t\t}"
-    }
+    "onModifyMove": "onModifyMove(move, pokemon) {\n\t\t\tmove.type = '???';\n\t\t\tmove.category = 'Special';\n\t\t\tmove.allies = pokemon.side.pokemon.filter(ally => !ally.fainted && !ally.status);\n\t\t\tmove.multihit = move.allies.length;\n\t\t}"
   },
   "bide": {
     "id": "bide",
     "inherit": true,
-    "accuracy": 100,
-    "priority": 0,
     "condition": {
       "duration": 3,
+      "durationCallback": "durationCallback(target, source, effect) {\n\t\t\t\treturn this.random(3, 5);\n\t\t\t}",
       "onLockMove": "bide",
       "onStart": "onStart(pokemon) {\n\t\t\t\tthis.effectState.totalDamage = 0;\n\t\t\t\tthis.add('-start', pokemon, 'move: Bide');\n\t\t\t}",
       "onDamagePriority": -101,
@@ -89,15 +81,11 @@
   "counter": {
     "id": "counter",
     "inherit": true,
-    "condition": {
-      "duration": 1,
-      "noCopy": true,
-      "onStart": "onStart(target, source, move) {\n\t\t\t\tthis.effectState.slot = null;\n\t\t\t\tthis.effectState.damage = 0;\n\t\t\t}",
-      "onRedirectTargetPriority": -1,
-      "onRedirectTarget": "onRedirectTarget(target, source, source2) {\n\t\t\t\tif (source !== this.effectState.target || !this.effectState.slot) return;\n\t\t\t\treturn this.getAtSlot(this.effectState.slot);\n\t\t\t}",
-      "onDamagePriority": -101,
-      "onDamage": "onDamage(damage, target, source, effect) {\n\t\t\t\tif (\n\t\t\t\t\teffect.effectType === 'Move' && !source.isAlly(target) &&\n\t\t\t\t\t(effect.category === 'Physical' || effect.id === 'hiddenpower')\n\t\t\t\t) {\n\t\t\t\t\tthis.effectState.slot = source.getSlot();\n\t\t\t\t\tthis.effectState.damage = 2 * damage;\n\t\t\t\t}\n\t\t\t}"
-    }
+    "damageCallback": "damageCallback(pokemon, target) {\n\t\t\tconst lastAttackedBy = pokemon.getLastAttackedBy();\n\t\t\tif (!lastAttackedBy?.move || !lastAttackedBy.thisTurn) return false;\n\n\t\t\t// Hidden Power counts\n\t\t\tif (this.getCategory(lastAttackedBy.move) === 'Physical' && target.lastMove?.id !== 'sleeptalk') {\n\t\t\t\treturn 2 * lastAttackedBy.damage;\n\t\t\t}\n\t\t\treturn false;\n\t\t}",
+    "beforeTurnCallback": "beforeTurnCallback() {}",
+    "onTry": "onTry() {}",
+    "condition": {},
+    "priority": -1
   },
   "covet": {
     "id": "covet",
@@ -121,7 +109,13 @@
   "dig": {
     "id": "dig",
     "inherit": true,
-    "basePower": 60
+    "onPrepareHit": "onPrepareHit(target, source) {\n\t\t\treturn source.status !== 'slp';\n\t\t}",
+    "condition": {
+      "duration": 2,
+      "onImmunity": "onImmunity(type, pokemon) {\n\t\t\t\tif (type === 'sandstorm') return false;\n\t\t\t}",
+      "onInvulnerability": "onInvulnerability(target, source, move) {\n\t\t\t\tif (move.id === 'earthquake' || move.id === 'magnitude' || move.id === 'fissure') {\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tif (['attract', 'curse', 'foresight', 'meanlook', 'mimic', 'nightmare', 'spiderweb', 'transform'].includes(move.id)) {\n\t\t\t\t\t// Oversight in the interaction between these moves and the Lock-On effect\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\t\t\t\tif (source.volatiles['lockon'] && target === source.volatiles['lockon'].source) return;\n\t\t\t\treturn false;\n\t\t\t}",
+      "onSourceBasePower": "onSourceBasePower(basePower, target, source, move) {\n\t\t\t\tif (move.id === 'earthquake' || move.id === 'magnitude') {\n\t\t\t\t\treturn this.chainModify(2);\n\t\t\t\t}\n\t\t\t}"
+    }
   },
   "disable": {
     "id": "disable",
@@ -156,14 +150,12 @@
   "encore": {
     "id": "encore",
     "inherit": true,
-    "volatileStatus": "encore",
     "condition": {
       "durationCallback": "durationCallback() {\n\t\t\t\treturn this.random(3, 7);\n\t\t\t}",
-      "onStart": "onStart(target, source) {\n\t\t\t\tconst moveSlot = target.lastMove ? target.getMoveData(target.lastMove.id) : null;\n\t\t\t\tif (!target.lastMove || target.lastMove.flags['failencore'] || !moveSlot || moveSlot.pp <= 0) {\n\t\t\t\t\t// it failed\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\t\t\t\tthis.effectState.move = target.lastMove.id;\n\t\t\t\tthis.add('-start', target, 'Encore');\n\t\t\t}",
+      "onStart": "onStart(target) {\n\t\t\t\tconst lockedMove = target.lastMoveEncore?.id || '';\n\t\t\t\tconst moveSlot = lockedMove ? target.getMoveData(lockedMove) : null;\n\t\t\t\tif (!moveSlot || target.lastMoveEncore?.flags['failencore'] || moveSlot.pp <= 0) {\n\t\t\t\t\t// it failed\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\t\t\t\tthis.effectState.move = lockedMove;\n\t\t\t\tthis.add('-start', target, 'Encore');\n\t\t\t}",
       "onOverrideAction": "onOverrideAction(pokemon) {\n\t\t\t\treturn this.effectState.move;\n\t\t\t}",
-      "onResidualOrder": 10,
-      "onResidualSubOrder": 14,
-      "onResidual": "onResidual(target) {\n\t\t\t\tconst moveSlot = target.getMoveData(this.effectState.move);\n\t\t\t\tif (moveSlot && moveSlot.pp <= 0) {\n\t\t\t\t\t// early termination if you run out of PP\n\t\t\t\t\ttarget.removeVolatile('encore');\n\t\t\t\t}\n\t\t\t}",
+      "onResidualOrder": 13,
+      "onResidual": "onResidual(target) {\n\t\t\t\tconst lockedMoveSlot = target.getMoveData(this.effectState.move);\n\t\t\t\tif (lockedMoveSlot && lockedMoveSlot.pp <= 0) {\n\t\t\t\t\t// early termination if you run out of PP\n\t\t\t\t\ttarget.removeVolatile('encore');\n\t\t\t\t}\n\t\t\t}",
       "onEnd": "onEnd(target) {\n\t\t\t\tthis.add('-end', target, 'Encore');\n\t\t\t}",
       "onDisableMove": "onDisableMove(pokemon) {\n\t\t\t\tif (!this.effectState.move || !pokemon.hasMove(this.effectState.move)) {\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tfor (const moveSlot of pokemon.moveSlots) {\n\t\t\t\t\tif (moveSlot.id !== this.effectState.move) {\n\t\t\t\t\t\tpokemon.disableMove(moveSlot.id);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}"
     }
@@ -194,7 +186,8 @@
   "flail": {
     "id": "flail",
     "inherit": true,
-    "basePowerCallback": "basePowerCallback(pokemon) {\n\t\t\tconst ratio = Math.max(Math.floor(pokemon.hp * 48 / pokemon.maxhp), 1);\n\t\t\tlet bp;\n\t\t\tif (ratio < 2) {\n\t\t\t\tbp = 200;\n\t\t\t} else if (ratio < 5) {\n\t\t\t\tbp = 150;\n\t\t\t} else if (ratio < 10) {\n\t\t\t\tbp = 100;\n\t\t\t} else if (ratio < 17) {\n\t\t\t\tbp = 80;\n\t\t\t} else if (ratio < 33) {\n\t\t\t\tbp = 40;\n\t\t\t} else {\n\t\t\t\tbp = 20;\n\t\t\t}\n\t\t\tthis.debug(`BP: ${bp}`);\n\t\t\treturn bp;\n\t\t}"
+    "noDamageVariance": true,
+    "willCrit": false
   },
   "flash": {
     "id": "flash",
@@ -204,7 +197,12 @@
   "fly": {
     "id": "fly",
     "inherit": true,
-    "basePower": 70
+    "onPrepareHit": "onPrepareHit(target, source) {\n\t\t\treturn source.status !== 'slp';\n\t\t}",
+    "condition": {
+      "duration": 2,
+      "onInvulnerability": "onInvulnerability(target, source, move) {\n\t\t\t\tif (move.id === 'gust' || move.id === 'twister' || move.id === 'thunder' || move.id === 'whirlwind') {\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tif (move.id === 'earthquake' || move.id === 'magnitude' || move.id === 'fissure') {\n\t\t\t\t\t// These moves miss even during the Lock-On effect\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\t\t\t\tif (['attract', 'curse', 'foresight', 'meanlook', 'mimic', 'nightmare', 'spiderweb', 'transform'].includes(move.id)) {\n\t\t\t\t\t// Oversight in the interaction between these moves and the Lock-On effect\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\t\t\t\tif (source.volatiles['lockon'] && target === source.volatiles['lockon'].source) return;\n\t\t\t\treturn false;\n\t\t\t}",
+      "onSourceBasePower": "onSourceBasePower(basePower, target, source, move) {\n\t\t\t\tif (move.id === 'gust' || move.id === 'twister') {\n\t\t\t\t\treturn this.chainModify(2);\n\t\t\t\t}\n\t\t\t}"
+    }
   },
   "followme": {
     "id": "followme",
@@ -220,7 +218,12 @@
   "foresight": {
     "id": "foresight",
     "inherit": true,
-    "accuracy": 100
+    "onTryHit": "onTryHit(target) {\n\t\t\tif (target.volatiles['foresight']) return false;\n\t\t}",
+    "condition": {
+      "onStart": "onStart(pokemon) {\n\t\t\t\tthis.add('-start', pokemon, 'Foresight');\n\t\t\t}",
+      "onNegateImmunity": "onNegateImmunity(pokemon, type) {\n\t\t\t\tif (pokemon.hasType('Ghost') && ['Normal', 'Fighting'].includes(type)) return false;\n\t\t\t}",
+      "onModifyBoost": "onModifyBoost(boosts) {\n\t\t\t\tif (boosts.evasion && boosts.evasion > 0) {\n\t\t\t\t\tboosts.evasion = 0;\n\t\t\t\t}\n\t\t\t}"
+    }
   },
   "furycutter": {
     "id": "furycutter",
@@ -251,8 +254,7 @@
   "highjumpkick": {
     "id": "highjumpkick",
     "inherit": true,
-    "basePower": 85,
-    "onMoveFail": "onMoveFail(target, source, move) {\n\t\t\tif (target.runImmunity('Fighting')) {\n\t\t\t\tconst damage = this.actions.getDamage(source, target, move, true);\n\t\t\t\tif (typeof damage !== 'number') throw new Error(\"HJK recoil failed\");\n\t\t\t\tthis.damage(this.clampIntRange(damage / 2, 1, Math.floor(target.maxhp / 2)), source, source, move);\n\t\t\t}\n\t\t}"
+    "onMoveFail": "onMoveFail(target, source, move) {\n\t\t\tif (target.runImmunity('Fighting')) {\n\t\t\t\tconst damage = this.actions.getDamage(source, target, move, true);\n\t\t\t\tif (typeof damage !== 'number') throw new Error(\"Couldn't get High Jump Kick recoil\");\n\t\t\t\tthis.damage(this.clampIntRange(damage / 8, 1), source, source, move);\n\t\t\t}\n\t\t}"
   },
   "hypnosis": {
     "id": "hypnosis",
@@ -262,8 +264,7 @@
   "jumpkick": {
     "id": "jumpkick",
     "inherit": true,
-    "basePower": 70,
-    "onMoveFail": "onMoveFail(target, source, move) {\n\t\t\tif (target.runImmunity('Fighting')) {\n\t\t\t\tconst damage = this.actions.getDamage(source, target, move, true);\n\t\t\t\tif (typeof damage !== 'number') throw new Error(\"Jump Kick didn't recoil\");\n\t\t\t\tthis.damage(this.clampIntRange(damage / 2, 1, Math.floor(target.maxhp / 2)), source, source, move);\n\t\t\t}\n\t\t}"
+    "onMoveFail": "onMoveFail(target, source, move) {\n\t\t\tif (target.runImmunity('Fighting')) {\n\t\t\t\tconst damage = this.actions.getDamage(source, target, move, true);\n\t\t\t\tif (typeof damage !== 'number') throw new Error(\"Couldn't get Jump Kick recoil\");\n\t\t\t\tthis.damage(this.clampIntRange(damage / 8, 1), source, source, move);\n\t\t\t}\n\t\t}"
   },
   "leafblade": {
     "id": "leafblade",
@@ -273,7 +274,11 @@
   "lockon": {
     "id": "lockon",
     "inherit": true,
-    "accuracy": 100
+    "onTryHit": "onTryHit(target) {\n\t\t\tif (target.volatiles['foresight'] || target.volatiles['lockon']) return false;\n\t\t}",
+    "condition": {
+      "duration": 2,
+      "onSourceAccuracy": "onSourceAccuracy(accuracy, target, source, move) {\n\t\t\t\tif (move && source === this.effectState.target && target === this.effectState.source) return true;\n\t\t\t}"
+    }
   },
   "megadrain": {
     "id": "megadrain",
@@ -288,32 +293,29 @@
   "mindreader": {
     "id": "mindreader",
     "inherit": true,
-    "accuracy": 100
+    "onTryHit": "onTryHit(target) {\n\t\t\tif (target.volatiles['foresight'] || target.volatiles['lockon']) return false;\n\t\t}"
   },
   "mimic": {
     "id": "mimic",
     "inherit": true,
+    "accuracy": 100,
     "flags": {
       "protect": 1,
       "bypasssub": 1,
       "allyanim": 1,
       "failencore": 1,
       "noassist": 1,
-      "failmimic": 1
+      "nosketch": 1
     }
   },
   "mirrorcoat": {
     "id": "mirrorcoat",
     "inherit": true,
-    "condition": {
-      "duration": 1,
-      "noCopy": true,
-      "onStart": "onStart(target, source, move) {\n\t\t\t\tthis.effectState.slot = null;\n\t\t\t\tthis.effectState.damage = 0;\n\t\t\t}",
-      "onRedirectTargetPriority": -1,
-      "onRedirectTarget": "onRedirectTarget(target, source, source2) {\n\t\t\t\tif (source !== this.effectState.target || !this.effectState.slot) return;\n\t\t\t\treturn this.getAtSlot(this.effectState.slot);\n\t\t\t}",
-      "onDamagePriority": -101,
-      "onDamage": "onDamage(damage, target, source, effect) {\n\t\t\t\tif (\n\t\t\t\t\teffect.effectType === 'Move' && !source.isAlly(target) &&\n\t\t\t\t\teffect.category === 'Special' && effect.id !== 'hiddenpower'\n\t\t\t\t) {\n\t\t\t\t\tthis.effectState.slot = source.getSlot();\n\t\t\t\t\tthis.effectState.damage = 2 * damage;\n\t\t\t\t}\n\t\t\t}"
-    }
+    "damageCallback": "damageCallback(pokemon, target) {\n\t\t\tconst lastAttackedBy = pokemon.getLastAttackedBy();\n\t\t\tif (!lastAttackedBy?.move || !lastAttackedBy.thisTurn) return false;\n\n\t\t\t// Hidden Power counts\n\t\t\tif (this.getCategory(lastAttackedBy.move) === 'Special' && target.lastMove?.id !== 'sleeptalk') {\n\t\t\t\treturn 2 * lastAttackedBy.damage;\n\t\t\t}\n\t\t\treturn false;\n\t\t}",
+    "beforeTurnCallback": "beforeTurnCallback() {}",
+    "onTry": "onTry() {}",
+    "condition": {},
+    "priority": -1
   },
   "mirrormove": {
     "id": "mirrormove",
@@ -321,12 +323,9 @@
     "flags": {
       "metronome": 1,
       "failencore": 1,
-      "nosleeptalk": 1,
-      "noassist": 1
+      "nosketch": 1
     },
-    "onTryHit": "onTryHit() { }",
-    "onHit": "onHit(pokemon) {\n\t\t\tconst noMirror = [\n\t\t\t\t'assist', 'curse', 'doomdesire', 'focuspunch', 'futuresight', 'magiccoat', 'metronome', 'mimic', 'mirrormove', 'naturepower', 'psychup', 'roleplay', 'sketch', 'sleeptalk', 'spikes', 'spitup', 'taunt', 'teeterdance', 'transform',\n\t\t\t];\n\t\t\tconst lastAttackedBy = pokemon.getLastAttackedBy();\n\t\t\tif (!lastAttackedBy?.source.lastMove || !lastAttackedBy.move) {\n\t\t\t\treturn false;\n\t\t\t}\n\t\t\tif (noMirror.includes(lastAttackedBy.move) || !lastAttackedBy.source.hasMove(lastAttackedBy.move)) {\n\t\t\t\treturn false;\n\t\t\t}\n\t\t\tthis.actions.useMove(lastAttackedBy.move, pokemon);\n\t\t}",
-    "target": "self"
+    "onHit": "onHit(pokemon) {\n\t\t\tconst noMirror = ['metronome', 'mimic', 'mirrormove', 'sketch', 'sleeptalk', 'transform'];\n\t\t\tconst target = pokemon.side.foe.active[0];\n\t\t\tconst lastMove = target?.lastMove && target?.lastMove.id;\n\t\t\tif (!lastMove || (!pokemon.activeTurns && !target.moveThisTurn)) {\n\t\t\t\treturn false;\n\t\t\t}\n\t\t\tif (noMirror.includes(lastMove) || pokemon.moves.includes(lastMove)) {\n\t\t\t\treturn false;\n\t\t\t}\n\t\t\tthis.actions.useMove(lastMove, pokemon);\n\t\t}"
   },
   "naturepower": {
     "id": "naturepower",
@@ -342,7 +341,12 @@
   "nightmare": {
     "id": "nightmare",
     "inherit": true,
-    "accuracy": true
+    "condition": {
+      "noCopy": true,
+      "onStart": "onStart(pokemon) {\n\t\t\t\tif (pokemon.status !== 'slp') {\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\t\t\t\tthis.add('-start', pokemon, 'Nightmare');\n\t\t\t}",
+      "onAfterMoveSelfPriority": 1,
+      "onAfterMoveSelf": "onAfterMoveSelf(pokemon) {\n\t\t\t\tif (pokemon.status === 'slp') this.damage(pokemon.baseMaxhp / 4);\n\t\t\t}"
+    }
   },
   "odorsleuth": {
     "id": "odorsleuth",
@@ -352,7 +356,8 @@
   "outrage": {
     "id": "outrage",
     "inherit": true,
-    "basePower": 90
+    "onMoveFail": "onMoveFail(target, source, move) {\n\t\t\tsource.addVolatile('lockedmove');\n\t\t}",
+    "onAfterMove": "onAfterMove(pokemon) {\n\t\t\tif (pokemon.volatiles['lockedmove'] && pokemon.volatiles['lockedmove'].duration === 1) {\n\t\t\t\tpokemon.removeVolatile('lockedmove');\n\t\t\t}\n\t\t}"
   },
   "overheat": {
     "id": "overheat",
@@ -367,7 +372,8 @@
   "petaldance": {
     "id": "petaldance",
     "inherit": true,
-    "basePower": 70
+    "onMoveFail": "onMoveFail(target, source, move) {\n\t\t\tsource.addVolatile('lockedmove');\n\t\t}",
+    "onAfterMove": "onAfterMove(pokemon) {\n\t\t\tif (pokemon.volatiles['lockedmove'] && pokemon.volatiles['lockedmove'].duration === 1) {\n\t\t\t\tpokemon.removeVolatile('lockedmove');\n\t\t\t}\n\t\t}"
   },
   "recover": {
     "id": "recover",
@@ -377,7 +383,8 @@
   "reversal": {
     "id": "reversal",
     "inherit": true,
-    "basePowerCallback": "basePowerCallback(pokemon) {\n\t\t\tconst ratio = Math.max(Math.floor(pokemon.hp * 48 / pokemon.maxhp), 1);\n\t\t\tlet bp;\n\t\t\tif (ratio < 2) {\n\t\t\t\tbp = 200;\n\t\t\t} else if (ratio < 5) {\n\t\t\t\tbp = 150;\n\t\t\t} else if (ratio < 10) {\n\t\t\t\tbp = 100;\n\t\t\t} else if (ratio < 17) {\n\t\t\t\tbp = 80;\n\t\t\t} else if (ratio < 33) {\n\t\t\t\tbp = 40;\n\t\t\t} else {\n\t\t\t\tbp = 20;\n\t\t\t}\n\t\t\tthis.debug(`BP: ${bp}`);\n\t\t\treturn bp;\n\t\t}"
+    "noDamageVariance": true,
+    "willCrit": false
   },
   "rocksmash": {
     "id": "rocksmash",
@@ -391,14 +398,19 @@
       "bypasssub": 1,
       "failencore": 1,
       "noassist": 1,
-      "failmimic": 1,
       "nosketch": 1
-    }
+    },
+    "onHit": "onHit() {\n\t\t\t// Sketch always fails in Link Battles\n\t\t\tthis.add('-nothing');\n\t\t}"
   },
   "sleeptalk": {
     "id": "sleeptalk",
     "inherit": true,
-    "onHit": "onHit(pokemon) {\n\t\t\tconst moves = [];\n\t\t\tfor (const moveSlot of pokemon.moveSlots) {\n\t\t\t\tconst moveid = moveSlot.id;\n\t\t\t\tconst pp = moveSlot.pp;\n\t\t\t\tconst move = this.dex.moves.get(moveid);\n\t\t\t\tif (moveid && !move.flags['nosleeptalk'] && !move.flags['charge']) {\n\t\t\t\t\tmoves.push({ move: moveid, pp });\n\t\t\t\t}\n\t\t\t}\n\t\t\tif (!moves.length) {\n\t\t\t\treturn false;\n\t\t\t}\n\t\t\tconst randomMove = this.sample(moves);\n\t\t\tif (!randomMove.pp) {\n\t\t\t\tthis.add('cant', pokemon, 'nopp', randomMove.move);\n\t\t\t\treturn;\n\t\t\t}\n\t\t\tthis.actions.useMove(randomMove.move, pokemon);\n\t\t}"
+    "flags": {
+      "failencore": 1,
+      "nosleeptalk": 1,
+      "nosketch": 1
+    },
+    "onHit": "onHit(pokemon) {\n\t\t\tconst moves = [];\n\t\t\tfor (const moveSlot of pokemon.moveSlots) {\n\t\t\t\tconst moveid = moveSlot.id;\n\t\t\t\tconst move = this.dex.moves.get(moveid);\n\t\t\t\tif (moveid && !move.flags['nosleeptalk'] && !move.flags['charge']) {\n\t\t\t\t\tmoves.push(moveid);\n\t\t\t\t}\n\t\t\t}\n\t\t\tlet randomMove = '';\n\t\t\tif (moves.length) randomMove = this.sample(moves);\n\t\t\tif (!randomMove) return false;\n\t\t\tthis.actions.useMove(randomMove, pokemon);\n\t\t}"
   },
   "spite": {
     "id": "spite",
@@ -513,5 +525,386 @@
     "id": "zapcannon",
     "inherit": true,
     "basePower": 100
+  },
+  "aeroblast": {
+    "id": "aeroblast",
+    "inherit": true,
+    "critRatio": 3
+  },
+  "bellydrum": {
+    "id": "bellydrum",
+    "inherit": true,
+    "onHit": "onHit(target) {\n\t\t\tif (target.boosts.atk >= 6) {\n\t\t\t\treturn false;\n\t\t\t}\n\t\t\tif (target.hp <= target.maxhp / 2) {\n\t\t\t\tthis.boost({ atk: 2 }, null, null, this.dex.conditions.get('bellydrum2'));\n\t\t\t\treturn false;\n\t\t\t}\n\t\t\tthis.directDamage(target.maxhp / 2);\n\t\t\tconst originalStage = target.boosts.atk;\n\t\t\tlet currentStage = originalStage;\n\t\t\tlet boosts = 0;\n\t\t\tlet loopStage = 0;\n\t\t\twhile (currentStage < 6) {\n\t\t\t\tloopStage = currentStage;\n\t\t\t\tcurrentStage++;\n\t\t\t\tif (currentStage < 6) currentStage++;\n\t\t\t\ttarget.boosts.atk = loopStage;\n\t\t\t\tif (target.getStat('atk', false, true) < 999) {\n\t\t\t\t\ttarget.boosts.atk = currentStage;\n\t\t\t\t\tcontinue;\n\t\t\t\t}\n\t\t\t\ttarget.boosts.atk = currentStage - 1;\n\t\t\t\tbreak;\n\t\t\t}\n\t\t\tboosts = target.boosts.atk - originalStage;\n\t\t\ttarget.boosts.atk = originalStage;\n\t\t\tthis.boost({ atk: boosts });\n\t\t}"
+  },
+  "crabhammer": {
+    "id": "crabhammer",
+    "inherit": true,
+    "critRatio": 3
+  },
+  "crosschop": {
+    "id": "crosschop",
+    "inherit": true,
+    "critRatio": 3
+  },
+  "curse": {
+    "id": "curse",
+    "inherit": true,
+    "condition": {
+      "onStart": "onStart(pokemon, source) {\n\t\t\t\tthis.add('-start', pokemon, 'Curse', `[of] ${source}`);\n\t\t\t}",
+      "onAfterMoveSelf": "onAfterMoveSelf(pokemon) {\n\t\t\t\tthis.damage(pokemon.baseMaxhp / 4);\n\t\t\t}"
+    }
+  },
+  "detect": {
+    "id": "detect",
+    "inherit": true,
+    "priority": 2
+  },
+  "doubleedge": {
+    "id": "doubleedge",
+    "inherit": true,
+    "recoil": [
+      25,
+      100
+    ]
+  },
+  "endure": {
+    "id": "endure",
+    "inherit": true,
+    "priority": 2
+  },
+  "explosion": {
+    "id": "explosion",
+    "inherit": true,
+    "flags": {
+      "protect": 1,
+      "mirror": 1,
+      "metronome": 1,
+      "noparentalbond": 1,
+      "nosketch": 1
+    }
+  },
+  "focusenergy": {
+    "id": "focusenergy",
+    "inherit": true,
+    "condition": {
+      "onStart": "onStart(pokemon) {\n\t\t\t\tthis.add('-start', pokemon, 'move: Focus Energy');\n\t\t\t}",
+      "onModifyCritRatio": "onModifyCritRatio(critRatio) {\n\t\t\t\treturn critRatio + 1;\n\t\t\t}"
+    }
+  },
+  "frustration": {
+    "id": "frustration",
+    "inherit": true,
+    "basePowerCallback": "basePowerCallback(pokemon) {\n\t\t\treturn Math.floor(((255 - pokemon.happiness) * 10) / 25) || null;\n\t\t}"
+  },
+  "healbell": {
+    "id": "healbell",
+    "inherit": true,
+    "onHit": "onHit(target, source) {\n\t\t\tthis.add('-cureteam', source, '[from] move: Heal Bell');\n\t\t\tfor (const pokemon of target.side.pokemon) {\n\t\t\t\tpokemon.clearStatus();\n\t\t\t}\n\t\t}"
+  },
+  "karatechop": {
+    "id": "karatechop",
+    "inherit": true,
+    "critRatio": 3
+  },
+  "leechseed": {
+    "id": "leechseed",
+    "inherit": true,
+    "onHit": "onHit() {}",
+    "condition": {
+      "onStart": "onStart(target) {\n\t\t\t\tthis.add('-start', target, 'move: Leech Seed');\n\t\t\t}",
+      "onAfterMoveSelfPriority": 2,
+      "onAfterMoveSelf": "onAfterMoveSelf(pokemon) {\n\t\t\t\tif (!pokemon.hp) return;\n\t\t\t\tconst leecher = this.getAtSlot(pokemon.volatiles['leechseed'].sourceSlot);\n\t\t\t\tif (!leecher || leecher.fainted || leecher.hp <= 0) {\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tconst toLeech = this.clampIntRange(pokemon.maxhp / 8, 1);\n\t\t\t\tconst damage = this.damage(toLeech, pokemon, leecher);\n\t\t\t\tif (damage) {\n\t\t\t\t\tthis.heal(damage, leecher, pokemon);\n\t\t\t\t}\n\t\t\t}"
+    }
+  },
+  "lightscreen": {
+    "id": "lightscreen",
+    "inherit": true,
+    "condition": {
+      "duration": 5,
+      "onSideStart": "onSideStart(side) {\n\t\t\t\tthis.add('-sidestart', side, 'move: Light Screen');\n\t\t\t}",
+      "onSideResidualOrder": 9,
+      "onSideEnd": "onSideEnd(side) {\n\t\t\t\tthis.add('-sideend', side, 'move: Light Screen');\n\t\t\t}"
+    }
+  },
+  "lowkick": {
+    "id": "lowkick",
+    "inherit": true,
+    "accuracy": 90,
+    "basePower": 50,
+    "basePowerCallback": "basePowerCallback() {\n\t\t\treturn 50;\n\t\t}",
+    "secondary": {
+      "chance": 30,
+      "volatileStatus": "flinch"
+    }
+  },
+  "meanlook": {
+    "id": "meanlook",
+    "inherit": true,
+    "flags": {
+      "reflectable": 1,
+      "mirror": 1,
+      "metronome": 1
+    }
+  },
+  "metronome": {
+    "id": "metronome",
+    "inherit": true,
+    "flags": {
+      "failencore": 1,
+      "nosketch": 1
+    }
+  },
+  "mist": {
+    "id": "mist",
+    "num": 54,
+    "accuracy": true,
+    "basePower": 0,
+    "category": "Status",
+    "name": "Mist",
+    "pp": 30,
+    "priority": 0,
+    "flags": {
+      "metronome": 1
+    },
+    "volatileStatus": "mist",
+    "condition": {
+      "onStart": "onStart(pokemon) {\n\t\t\t\tthis.add('-start', pokemon, 'Mist');\n\t\t\t}",
+      "onTryBoost": "onTryBoost(boost, target, source, effect) {\n\t\t\t\tif (source && target !== source) {\n\t\t\t\t\tlet showMsg = false;\n\t\t\t\t\tlet i;\n\t\t\t\t\tfor (i in boost) {\n\t\t\t\t\t\tif (boost[i] < 0) {\n\t\t\t\t\t\t\tdelete boost[i];\n\t\t\t\t\t\t\tshowMsg = true;\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tif (showMsg && !(effect).secondaries) {\n\t\t\t\t\t\tthis.add('-activate', target, 'move: Mist');\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}"
+    },
+    "secondary": null,
+    "target": "self",
+    "type": "Ice"
+  },
+  "moonlight": {
+    "id": "moonlight",
+    "inherit": true,
+    "onHit": "onHit(pokemon) {\n\t\t\tif (this.field.isWeather(['sunnyday', 'desolateland'])) {\n\t\t\t\tthis.heal(pokemon.maxhp);\n\t\t\t} else if (this.field.isWeather(['raindance', 'primordialsea', 'sandstorm', 'hail'])) {\n\t\t\t\tthis.heal(pokemon.baseMaxhp / 4);\n\t\t\t} else {\n\t\t\t\tthis.heal(pokemon.baseMaxhp / 2);\n\t\t\t}\n\t\t}"
+  },
+  "morningsun": {
+    "id": "morningsun",
+    "inherit": true,
+    "onHit": "onHit(pokemon) {\n\t\t\tif (this.field.isWeather(['sunnyday', 'desolateland'])) {\n\t\t\t\tthis.heal(pokemon.maxhp);\n\t\t\t} else if (this.field.isWeather(['raindance', 'primordialsea', 'sandstorm', 'hail'])) {\n\t\t\t\tthis.heal(pokemon.baseMaxhp / 4);\n\t\t\t} else {\n\t\t\t\tthis.heal(pokemon.baseMaxhp / 2);\n\t\t\t}\n\t\t}"
+  },
+  "painsplit": {
+    "id": "painsplit",
+    "inherit": true,
+    "accuracy": 100
+  },
+  "perishsong": {
+    "id": "perishsong",
+    "inherit": true,
+    "condition": {
+      "duration": 4,
+      "onEnd": "onEnd(target) {\n\t\t\t\tthis.add('-start', target, 'perish0');\n\t\t\t\ttarget.faint();\n\t\t\t}",
+      "onResidualOrder": 4,
+      "onResidual": "onResidual(pokemon) {\n\t\t\t\tconst duration = pokemon.volatiles['perishsong'].duration;\n\t\t\t\tthis.add('-start', pokemon, `perish${duration}`);\n\t\t\t}"
+    }
+  },
+  "poisongas": {
+    "id": "poisongas",
+    "inherit": true,
+    "ignoreImmunity": false
+  },
+  "poisonpowder": {
+    "id": "poisonpowder",
+    "inherit": true,
+    "ignoreImmunity": false
+  },
+  "protect": {
+    "id": "protect",
+    "inherit": true,
+    "priority": 2
+  },
+  "psywave": {
+    "id": "psywave",
+    "inherit": true,
+    "damageCallback": "damageCallback(pokemon) {\n\t\t\treturn this.random(1, pokemon.level + Math.floor(pokemon.level / 2));\n\t\t}"
+  },
+  "pursuit": {
+    "id": "pursuit",
+    "inherit": true,
+    "onModifyMove": "onModifyMove() {}",
+    "condition": {
+      "duration": 1,
+      "onBeforeSwitchOut": "onBeforeSwitchOut(pokemon) {\n\t\t\t\tthis.debug('Pursuit start');\n\t\t\t\tlet alreadyAdded = false;\n\t\t\t\tfor (const source of this.effectState.sources) {\n\t\t\t\t\tif (source.speed < pokemon.speed || (source.speed === pokemon.speed && this.randomChance(1, 2))) {\n\t\t\t\t\t\t// Destiny Bond ends if the switch action \"outspeeds\" the attacker, regardless of host\n\t\t\t\t\t\tpokemon.removeVolatile('destinybond');\n\t\t\t\t\t}\n\t\t\t\t\tif (!this.queue.cancelMove(source) || !source.hp) continue;\n\t\t\t\t\tif (!alreadyAdded) {\n\t\t\t\t\t\tthis.add('-activate', pokemon, 'move: Pursuit');\n\t\t\t\t\t\talreadyAdded = true;\n\t\t\t\t\t}\n\t\t\t\t\t// Run through each action in queue to check if the Pursuit user is supposed to Mega Evolve this turn.\n\t\t\t\t\t// If it is, then Mega Evolve before moving.\n\t\t\t\t\tif (source.canMegaEvo || source.canUltraBurst) {\n\t\t\t\t\t\tfor (const [actionIndex, action] of this.queue.entries()) {\n\t\t\t\t\t\t\tif (action.pokemon === source && action.choice === 'megaEvo') {\n\t\t\t\t\t\t\t\tthis.actions.runMegaEvo(source);\n\t\t\t\t\t\t\t\tthis.queue.list.splice(actionIndex, 1);\n\t\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tthis.actions.runMove('pursuit', source, source.getLocOf(pokemon));\n\t\t\t\t}\n\t\t\t}"
+    }
+  },
+  "razorleaf": {
+    "id": "razorleaf",
+    "inherit": true,
+    "critRatio": 3
+  },
+  "razorwind": {
+    "id": "razorwind",
+    "inherit": true,
+    "accuracy": 75,
+    "critRatio": 3,
+    "onPrepareHit": "onPrepareHit(target, source) {\n\t\t\treturn source.status !== 'slp';\n\t\t}"
+  },
+  "reflect": {
+    "id": "reflect",
+    "inherit": true,
+    "condition": {
+      "duration": 5,
+      "onSideStart": "onSideStart(side) {\n\t\t\t\tthis.add('-sidestart', side, 'Reflect');\n\t\t\t}",
+      "onSideResidualOrder": 9,
+      "onSideEnd": "onSideEnd(side) {\n\t\t\t\tthis.add('-sideend', side, 'Reflect');\n\t\t\t}"
+    }
+  },
+  "rest": {
+    "id": "rest",
+    "inherit": true,
+    "onTry": "onTry(pokemon) {\n\t\t\tif (pokemon.hp < pokemon.maxhp) return;\n\t\t\tthis.add('-fail', pokemon);\n\t\t\treturn null;\n\t\t}",
+    "onHit": "onHit(target, source, move) {\n\t\t\tif (target.status !== 'slp') {\n\t\t\t\tif (!target.setStatus('slp', source, move)) return;\n\t\t\t} else {\n\t\t\t\tthis.add('-status', target, 'slp', '[from] move: Rest');\n\t\t\t}\n\t\t\ttarget.statusState.time = 3;\n\t\t\ttarget.statusState.startTime = 3;\n\t\t\ttarget.statusState.source = target;\n\t\t\tthis.heal(target.maxhp);\n\t\t}",
+    "secondary": null
+  },
+  "return": {
+    "id": "return",
+    "inherit": true,
+    "basePowerCallback": "basePowerCallback(pokemon) {\n\t\t\treturn Math.floor((pokemon.happiness * 10) / 25) || null;\n\t\t}"
+  },
+  "roar": {
+    "id": "roar",
+    "inherit": true,
+    "onTryHit": "onTryHit() {\n\t\t\tfor (const action of this.queue) {\n\t\t\t\t// Roar only works if it is the last action in a turn, including when it's called by Sleep Talk\n\t\t\t\tif (action.choice === 'move' || action.choice === 'switch') return false;\n\t\t\t}\n\t\t}",
+    "priority": -1
+  },
+  "safeguard": {
+    "id": "safeguard",
+    "inherit": true,
+    "condition": {
+      "duration": 5,
+      "durationCallback": "durationCallback(target, source, effect) {\n\t\t\t\tif (source?.hasAbility('persistent')) {\n\t\t\t\t\tthis.add('-activate', source, 'ability: Persistent', effect);\n\t\t\t\t\treturn 7;\n\t\t\t\t}\n\t\t\t\treturn 5;\n\t\t\t}",
+      "onSetStatus": "onSetStatus(status, target, source, effect) {\n\t\t\t\tif (!effect || !source) return;\n\t\t\t\tif (effect.id === 'yawn') return;\n\t\t\t\tif (effect.effectType === 'Move' && effect.infiltrates && !target.isAlly(source)) return;\n\t\t\t\tif (target !== source) {\n\t\t\t\t\tthis.debug('interrupting setStatus');\n\t\t\t\t\tif (effect.id === 'synchronize' || (effect.effectType === 'Move' && !effect.secondaries)) {\n\t\t\t\t\t\tthis.add('-activate', target, 'move: Safeguard');\n\t\t\t\t\t}\n\t\t\t\t\treturn null;\n\t\t\t\t}\n\t\t\t}",
+      "onTryAddVolatile": "onTryAddVolatile(status, target, source, effect) {\n\t\t\t\tif (!effect || !source) return;\n\t\t\t\tif (effect.effectType === 'Move' && effect.infiltrates && !target.isAlly(source)) return;\n\t\t\t\tif ((status.id === 'confusion' || status.id === 'yawn') && target !== source) {\n\t\t\t\t\tif (effect.effectType === 'Move' && !effect.secondaries) this.add('-activate', target, 'move: Safeguard');\n\t\t\t\t\treturn null;\n\t\t\t\t}\n\t\t\t}",
+      "onSideStart": "onSideStart(side) {\n\t\t\t\tthis.add('-sidestart', side, 'Safeguard');\n\t\t\t}",
+      "onSideResidualOrder": 8,
+      "onSideEnd": "onSideEnd(side) {\n\t\t\t\tthis.add('-sideend', side, 'Safeguard');\n\t\t\t}"
+    }
+  },
+  "selfdestruct": {
+    "id": "selfdestruct",
+    "inherit": true,
+    "flags": {
+      "protect": 1,
+      "mirror": 1,
+      "metronome": 1,
+      "noparentalbond": 1,
+      "nosketch": 1
+    }
+  },
+  "skullbash": {
+    "id": "skullbash",
+    "inherit": true,
+    "onPrepareHit": "onPrepareHit(target, source) {\n\t\t\treturn source.status !== 'slp';\n\t\t}"
+  },
+  "skyattack": {
+    "id": "skyattack",
+    "inherit": true,
+    "critRatio": 1,
+    "onPrepareHit": "onPrepareHit(target, source) {\n\t\t\treturn source.status !== 'slp';\n\t\t}",
+    "secondary": null
+  },
+  "slash": {
+    "id": "slash",
+    "inherit": true,
+    "critRatio": 3
+  },
+  "solarbeam": {
+    "id": "solarbeam",
+    "inherit": true,
+    "onPrepareHit": "onPrepareHit(target, source) {\n\t\t\treturn source.status !== 'slp';\n\t\t}",
+    "onBasePower": "onBasePower() {}"
+  },
+  "spiderweb": {
+    "id": "spiderweb",
+    "inherit": true,
+    "flags": {
+      "reflectable": 1,
+      "mirror": 1,
+      "metronome": 1
+    }
+  },
+  "spikes": {
+    "id": "spikes",
+    "inherit": true,
+    "condition": {
+      "onSideStart": "onSideStart(side) {\n\t\t\t\tif (!this.effectState.layers || this.effectState.layers === 0) {\n\t\t\t\t\tthis.add('-sidestart', side, 'Spikes');\n\t\t\t\t\tthis.effectState.layers = 1;\n\t\t\t\t} else {\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\t\t\t}",
+      "onSwitchIn": "onSwitchIn(pokemon) {\n\t\t\t\tif (!pokemon.runImmunity('Ground')) return;\n\t\t\t\tconst damageAmounts = [0, 3];\n\t\t\t\tthis.damage(damageAmounts[this.effectState.layers] * pokemon.maxhp / 24);\n\t\t\t}"
+    }
+  },
+  "substitute": {
+    "id": "substitute",
+    "inherit": true,
+    "condition": {
+      "onStart": "onStart(target) {\n\t\t\t\tthis.add('-start', target, 'Substitute');\n\t\t\t\tthis.effectState.hp = Math.floor(target.maxhp / 4);\n\t\t\t\tdelete target.volatiles['partiallytrapped'];\n\t\t\t}",
+      "onTryPrimaryHitPriority": -1,
+      "onTryPrimaryHit": "onTryPrimaryHit(target, source, move) {\n\t\t\t\tif (move.stallingMove) {\n\t\t\t\t\tthis.add('-fail', source);\n\t\t\t\t\treturn null;\n\t\t\t\t}\n\t\t\t\tif (target === source) {\n\t\t\t\t\tthis.debug('sub bypass: self hit');\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tif (move.id === 'twineedle') {\n\t\t\t\t\tmove.secondaries = move.secondaries.filter(p => !p.kingsrock);\n\t\t\t\t}\n\t\t\t\tif (move.drain) {\n\t\t\t\t\tthis.add('-miss', source);\n\t\t\t\t\tthis.hint(\"In Gen 2, draining moves always miss against Substitute.\");\n\t\t\t\t\treturn null;\n\t\t\t\t}\n\t\t\t\tif (move.category === 'Status') {\n\t\t\t\t\tconst SubBlocked = ['leechseed', 'lockon', 'mindreader', 'nightmare', 'painsplit', 'sketch'];\n\t\t\t\t\tif (move.id === 'swagger') {\n\t\t\t\t\t\t// this is safe, move is a copy\n\t\t\t\t\t\tdelete move.volatileStatus;\n\t\t\t\t\t}\n\t\t\t\t\tif (\n\t\t\t\t\t\tmove.status || (move.boosts && move.id !== 'swagger') ||\n\t\t\t\t\t\tmove.volatileStatus === 'confusion' || SubBlocked.includes(move.id)\n\t\t\t\t\t) {\n\t\t\t\t\t\tthis.add('-activate', target, 'Substitute', '[block] ' + move.name);\n\t\t\t\t\t\treturn null;\n\t\t\t\t\t}\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tlet damage = this.actions.getDamage(source, target, move);\n\t\t\t\tif (!damage) {\n\t\t\t\t\treturn null;\n\t\t\t\t}\n\t\t\t\tdamage = this.runEvent('SubDamage', target, source, move, damage);\n\t\t\t\tif (!damage) {\n\t\t\t\t\treturn damage;\n\t\t\t\t}\n\t\t\t\tif (damage > target.volatiles['substitute'].hp) {\n\t\t\t\t\tdamage = target.volatiles['substitute'].hp;\n\t\t\t\t}\n\t\t\t\ttarget.volatiles['substitute'].hp -= damage;\n\t\t\t\tsource.lastDamage = damage;\n\t\t\t\tif (target.volatiles['substitute'].hp <= 0) {\n\t\t\t\t\ttarget.removeVolatile('substitute');\n\t\t\t\t} else {\n\t\t\t\t\tthis.add('-activate', target, 'Substitute', '[damage]');\n\t\t\t\t}\n\t\t\t\tif (move.recoil) {\n\t\t\t\t\tthis.damage(1, source, target, 'recoil');\n\t\t\t\t}\n\t\t\t\tthis.runEvent('AfterSubDamage', target, source, move, damage);\n\t\t\t\treturn this.HIT_SUBSTITUTE;\n\t\t\t}",
+      "onEnd": "onEnd(target) {\n\t\t\t\tthis.add('-end', target, 'Substitute');\n\t\t\t}"
+    }
+  },
+  "swagger": {
+    "id": "swagger",
+    "inherit": true,
+    "onTryHit": "onTryHit(target, pokemon) {\n\t\t\tif (target.boosts.atk >= 6 || target.getStat('atk', false, true) === 999) {\n\t\t\t\tthis.add('-miss', pokemon);\n\t\t\t\treturn null;\n\t\t\t}\n\t\t}"
+  },
+  "synthesis": {
+    "id": "synthesis",
+    "inherit": true,
+    "onHit": "onHit(pokemon) {\n\t\t\tif (this.field.isWeather(['sunnyday', 'desolateland'])) {\n\t\t\t\tthis.heal(pokemon.maxhp);\n\t\t\t} else if (this.field.isWeather(['raindance', 'primordialsea', 'sandstorm', 'hail'])) {\n\t\t\t\tthis.heal(pokemon.baseMaxhp / 4);\n\t\t\t} else {\n\t\t\t\tthis.heal(pokemon.baseMaxhp / 2);\n\t\t\t}\n\t\t}"
+  },
+  "thief": {
+    "id": "thief",
+    "inherit": true,
+    "onAfterHit": "onAfterHit() {}",
+    "secondary": {
+      "chance": 100,
+      "onHit": "onHit(target, source) {\n\t\t\t\tif (source.item || source.volatiles['gem']) {\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tconst yourItem = target.takeItem(source);\n\t\t\t\tif (!yourItem) {\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tif (!source.setItem(yourItem)) {\n\t\t\t\t\ttarget.item = yourItem.id; // bypass setItem so we don't break choicelock or anything\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tthis.add('-item', source, yourItem, '[from] move: Thief', `[of] ${target}`);\n\t\t\t}"
+    }
+  },
+  "thrash": {
+    "id": "thrash",
+    "inherit": true,
+    "onMoveFail": "onMoveFail(target, source, move) {\n\t\t\tsource.addVolatile('lockedmove');\n\t\t}",
+    "onAfterMove": "onAfterMove(pokemon) {\n\t\t\tif (pokemon.volatiles['lockedmove'] && pokemon.volatiles['lockedmove'].duration === 1) {\n\t\t\t\tpokemon.removeVolatile('lockedmove');\n\t\t\t}\n\t\t}"
+  },
+  "toxic": {
+    "id": "toxic",
+    "inherit": true,
+    "ignoreImmunity": false
+  },
+  "transform": {
+    "id": "transform",
+    "inherit": true,
+    "flags": {
+      "bypasssub": 1,
+      "metronome": 1,
+      "failencore": 1,
+      "nosketch": 1
+    }
+  },
+  "triattack": {
+    "id": "triattack",
+    "inherit": true,
+    "onHit": "onHit(target, source, move) {\n\t\t\tmove.statusRoll = ['par', 'frz', 'brn'][this.random(3)];\n\t\t}",
+    "secondary": {
+      "chance": 20,
+      "onHit": "onHit(target, source, move) {\n\t\t\t\tif (move.statusRoll) {\n\t\t\t\t\ttarget.trySetStatus(move.statusRoll, source);\n\t\t\t\t}\n\t\t\t}"
+    }
+  },
+  "triplekick": {
+    "id": "triplekick",
+    "inherit": true,
+    "multiaccuracy": false,
+    "multihit": [
+      1,
+      3
+    ]
+  },
+  "whirlwind": {
+    "id": "whirlwind",
+    "inherit": true,
+    "onTryHit": "onTryHit() {\n\t\t\tfor (const action of this.queue) {\n\t\t\t\t// Whirlwind only works if it is the last action in a turn, including when it's called by Sleep Talk\n\t\t\t\tif (action.choice === 'move' || action.choice === 'switch') return false;\n\t\t\t}\n\t\t}",
+    "priority": -1
   }
 }
