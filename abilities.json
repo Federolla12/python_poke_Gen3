@@ -1,0 +1,147 @@
+{
+  "cutecharm": {
+    "on_after_damage": {
+      "makes_contact": true,
+      "chance": { "numerator": 1, "denominator": 3 },
+      "add_volatile": "attract"
+    }
+  },
+  "effectspore": {
+    "on_after_damage": {
+      "makes_contact": true,
+      "require_no_status": true,
+      "random_range": 300,
+      "status_rolls": [
+        { "threshold": 10, "status": "slp" },
+        { "threshold": 20, "status": "par" },
+        { "threshold": 30, "status": "psn" }
+      ]
+    }
+  },
+  "flamebody": {
+    "on_after_damage": {
+      "makes_contact": true,
+      "chance": { "numerator": 1, "denominator": 3 },
+      "inflict_status": "brn"
+    }
+  },
+  "flashfire": {
+    "on_try_hit": {
+      "move_type": "Fire",
+      "add_volatile": "flashfire",
+      "ignore_if": ["has_type:Fire", "status:frz", "volatiles:substitute"]
+    }
+  },
+  "forecast": {
+    "name": "Forecast"
+  },
+  "hustle": {
+    "name": "Hustle",
+    "on_before_move": {
+      "physical_types": [
+        "Normal","Fighting","Flying","Poison","Ground","Rock","Bug","Ghost","Steel"
+      ],
+      "accuracy_multiplier": { "numerator": 3277, "denominator": 4096 }
+    }
+  },
+  "intimidate": {
+    "name": "Intimidate",
+    "on_switch_in": {
+      "atk_drop": 1,
+      "ignore_if_all_foes_have_substitute": true
+    }
+  },
+  "lightningrod": {
+    "name": "Lightning Rod",
+    "on_foe_redirect": {
+      "move_type": "Electric"
+    }
+  },
+  "minus": {
+    "name": "Minus",
+    "on_modify_spa": {
+      "requires_ability": "plus",
+      "multiplier": 1.5
+    }
+  },
+  "plus": {
+    "name": "Plus",
+    "on_modify_spa": {
+      "requires_ability": "minus",
+      "multiplier": 1.5
+    }
+  },
+  "poisonpoint": {
+    "name": "Poison Point",
+    "on_after_damage": {
+      "makes_contact": true,
+      "chance": { "numerator": 1, "denominator": 3 },
+      "inflict_status": "psn"
+    }
+  },
+  "pressure": {
+    "name": "Pressure",
+    "on_start": {
+      "silent": true
+    },
+    "on_before_move": {
+      "drain_pp": true,
+      "multiplier": 2
+    }
+  },
+  "raindish": {
+    "name": "Rain Dish",
+    "on_end_of_turn": {
+      "weather_only": ["raindance", "primordialsea"],
+      "recover_frac": 16
+    }
+  },
+  "roughskin": {
+    "name": "Rough Skin",
+    "on_after_damage": {
+      "makes_contact": true,
+      "recoil_frac": 16
+    }
+  },
+  "shadowtag": {
+    "name": "Shadow Tag",
+    "on_switch_in": {
+      "trap_all_foes": true
+    }
+  },
+  "static": {
+    "name": "Static",
+    "on_after_damage": {
+      "makes_contact": true,
+      "chance": { "numerator": 1, "denominator": 3 },
+      "inflict_status": "par"
+    }
+  },
+  "trace": {
+    "name": "Trace",
+    "on_start": {
+      "copy_foe_ability": true
+    }
+  },
+  "truant": {
+    "name": "Truant",
+    "on_switch_in": {
+      "init_truant_turn": true
+    },
+    "on_before_move": {
+      "skip_if_truant": true
+    },
+    "on_end_of_turn": {
+      "toggle_truant_turn": true
+    }
+  },
+  "voltabsorb": {
+    "name": "Volt Absorb",
+    "on_try_hit": {
+      "move_type": "Electric",
+      "exclude_moves": ["thunderwave"],
+      "heal_frac": 4,
+      "redirect_null": true
+    }
+  }
+}
