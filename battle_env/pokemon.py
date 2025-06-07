@@ -16,6 +16,36 @@ class StatStage:
                 return 3 / (3 - stage)
 
 
+# Gen 3 nature stat modifiers
+NATURE_MODIFIERS: dict[str, tuple[str | None, str | None]] = {
+    "Hardy": (None, None),
+    "Lonely": ("atk", "def"),
+    "Brave": ("atk", "spe"),
+    "Adamant": ("atk", "spa"),
+    "Naughty": ("atk", "spd"),
+    "Bold": ("def", "atk"),
+    "Docile": (None, None),
+    "Relaxed": ("def", "spe"),
+    "Impish": ("def", "spa"),
+    "Lax": ("def", "spd"),
+    "Timid": ("spe", "atk"),
+    "Hasty": ("spe", "def"),
+    "Serious": (None, None),
+    "Jolly": ("spe", "spa"),
+    "Naive": ("spe", "spd"),
+    "Modest": ("spa", "atk"),
+    "Mild": ("spa", "def"),
+    "Quiet": ("spa", "spe"),
+    "Bashful": (None, None),
+    "Rash": ("spa", "spd"),
+    "Calm": ("spd", "atk"),
+    "Gentle": ("spd", "def"),
+    "Sassy": ("spd", "spe"),
+    "Careful": ("spd", "spa"),
+    "Quirky": (None, None),
+}
+
+
 class Pokemon:
     """
     Represents a Gen 3 Pokémon with stats, stat stages, status, ability, item, and moveset.
@@ -32,6 +62,7 @@ class Pokemon:
         item: str = None,
         moves: list = None,
         gender: str | None = None,
+        nature: str | None = None,
     ):
         self.name = name
         self.level = level
@@ -42,6 +73,7 @@ class Pokemon:
         self.ability = ability
         self.item = item
         self.gender = gender
+        self.nature = nature
 
         # Calculate actual stats
         self.stats = self._calc_actual_stats()
@@ -66,13 +98,19 @@ class Pokemon:
     def _calc_actual_stats(self) -> dict[str, int]:
         """Calculate actual HP, atk, def, spa, spd, spe using Gen 3 formulas."""
         stats: dict[str, int] = {}
+        incr, decr = NATURE_MODIFIERS.get(self.nature or "Hardy", (None, None))
         for stat, base in self.base_stats.items():
             iv = self.ivs.get(stat, 0)
             ev = self.evs.get(stat, 0)
             if stat == 'hp':
                 stats['hp'] = ((2 * base + iv + ev // 4) * self.level) // 100 + self.level + 10
-            else:
-                stats[stat] = ((2 * base + iv + ev // 4) * self.level) // 100 + 5
+                continue
+            value = ((2 * base + iv + ev // 4) * self.level) // 100 + 5
+            if stat == incr:
+                value = int(value * 1.1)
+            elif stat == decr:
+                value = int(value * 0.9)
+            stats[stat] = value
         return stats
 
     def get_modified_stat(self, stat: str) -> int:

@@ -30,17 +30,41 @@ def parse_showdown(text: str, moves_db: dict[str, Pokemon]|None=None) -> Team:
             name = name[:-3].strip()
         item = _canon(item) if item else None
         ability = None
+        level = 100
+        evs = {}
+        nature = None
         moves = []
         for line in lines[1:]:
             if line.startswith('Ability:'):
                 ability = _canon(line.split(':',1)[1].strip())
+            elif line.startswith('Level:'):
+                try:
+                    level = int(line.split(':',1)[1].strip())
+                except ValueError:
+                    level = 100
+            elif line.startswith('EVs:'):
+                parts = line.split(':',1)[1].split('/')
+                for part in parts:
+                    part = part.strip()
+                    if not part:
+                        continue
+                    amt, stat = part.split(' ',1)
+                    key = stat.strip().lower().replace(' ', '')
+                    key = {'hp':'hp','atk':'atk','def':'def','spa':'spa','spd':'spd','spe':'spe'}.get(key,key)
+                    try:
+                        evs[key] = int(amt)
+                    except ValueError:
+                        pass
+            elif line.endswith('Nature'):
+                nature = line.split()[0]
             elif line.startswith('-'):
-                move_name = _canon(line[1:].strip())
+                move_name = line[1:].strip().lower()
                 if move_name in moves_db:
                     moves.append(deepcopy(moves_db[move_name]))
         base_stats = get_base_stats(name)
         types = get_pokemon_types(name)
-        p = Pokemon(name=name, level=100, types=types, base_stats=base_stats,
-                    ability=ability, item=item, moves=moves, gender=gender)
+        p = Pokemon(name=name, level=level, types=types, base_stats=base_stats,
+                    evs=evs, ability=ability, item=item, moves=moves,
+                    gender=gender, nature=nature)
         team_members.append(p)
     return Team(team_members)
