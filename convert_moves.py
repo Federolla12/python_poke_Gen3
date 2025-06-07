@@ -6,12 +6,18 @@ from pathlib import Path
 
 
 def sanitize_ts(ts_path: Path) -> Path:
+    """Convert a ``moves.ts`` file to plain JavaScript for Node."""
     text = ts_path.read_text()
     text = re.sub(r"export const Moves:.*?=", "globalThis.Moves =", text, 1)
     text = text.replace(" as ID", "")
     text = text.replace(" as unknown as ActiveMove", "")
+    text = re.sub(r" as [A-Za-z0-9_<>]+", "", text)
     text = re.sub(r"!([\.\[])", r"\1", text)
     text = text.replace("!++", "++")
+    # drop simple TypeScript annotations like "let x: Type" that appear in Gen2 files
+    text = re.sub(r"(\blet\s+\w+)\s*:[^=;\n]+", r"\1", text)
+    # remove non-null assertions before comparison operators
+    text = re.sub(r"([\w\]\)])!([\s<>=])", r"\1\2", text)
     tmp = tempfile.NamedTemporaryFile("w+", suffix=".js", delete=False)
     tmp.write(text)
     tmp.flush()
@@ -59,17 +65,32 @@ fs.writeFileSync(outPath, JSON.stringify(plain, null, 2));
         )
 
 
+def convert(ts_file: Path) -> dict:
+    """Convert a Showdown ``moves.ts`` file into a plain dictionary."""
+    sanitized = sanitize_ts(ts_file)
+    with tempfile.NamedTemporaryFile("r+", suffix=".json", delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+    try:
+        run_node(sanitized, tmp_path)
+        return json.loads(tmp_path.read_text())
+    finally:
+        sanitized.unlink(missing_ok=True)
+        tmp_path.unlink(missing_ok=True)
+
+
 def main():
     repo_root = Path(__file__).resolve().parent
-    ts_file = repo_root / "3gen_env_Showdown" / "moves.ts"
     out_dir = repo_root / "data"
     out_dir.mkdir(exist_ok=True)
     out_file = out_dir / "moves.json"
-    sanitized = sanitize_ts(ts_file)
-    try:
-        run_node(sanitized, out_file)
-    finally:
-        sanitized.unlink(missing_ok=True)
+
+    data: dict[str, dict] = {}
+    for sub in ["3gen_env_Showdown", "2gen_env_Showdown"]:
+        ts_file = repo_root / sub / "moves.ts"
+        if ts_file.exists():
+            data.update(convert(ts_file))
+
+    out_file.write_text(json.dumps(data, indent=2))
     print(f"Wrote {out_file}")
 
 

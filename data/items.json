@@ -14,40 +14,23 @@
   "berryjuice": {
     "id": "berryjuice",
     "inherit": true,
-    "onResidualOrder": 10,
-    "onResidualSubOrder": 4,
-    "isNonstandard": "Unobtainable",
-    "heal_amount": 20,
-    "heal_threshold": 0.5,
-    "consume": true
+    "isNonstandard": null
   },
   "blackbelt": {
     "id": "blackbelt",
-    "inherit": true,
-    "onModifyAtkPriority": 1,
-    "boost_type": "Fighting",
-    "boost_multiplier": 1.1
+    "inherit": true
   },
   "blackglasses": {
     "id": "blackglasses",
-    "inherit": true,
-    "onModifySpAPriority": 1,
-    "boost_type": "Dark",
-    "boost_multiplier": 1.1
+    "inherit": true
   },
   "charcoal": {
     "id": "charcoal",
-    "inherit": true,
-    "onModifySpAPriority": 1,
-    "boost_type": "Fire",
-    "boost_multiplier": 1.1
+    "inherit": true
   },
   "dragonfang": {
     "id": "dragonfang",
-    "inherit": true,
-    "onModifySpAPriority": 1,
-    "boost_type": "Dragon",
-    "boost_multiplier": 1.1
+    "inherit": true
   },
   "enigmaberry": {
     "id": "enigmaberry",
@@ -61,7 +44,7 @@
   "fastball": {
     "id": "fastball",
     "inherit": true,
-    "isNonstandard": "Unobtainable"
+    "isNonstandard": null
   },
   "figyberry": {
     "id": "figyberry",
@@ -77,15 +60,12 @@
   },
   "hardstone": {
     "id": "hardstone",
-    "inherit": true,
-    "onModifyAtkPriority": 1,
-    "boost_type": "Rock",
-    "boost_multiplier": 1.1
+    "inherit": true
   },
   "heavyball": {
     "id": "heavyball",
     "inherit": true,
-    "isNonstandard": "Unobtainable"
+    "isNonstandard": null
   },
   "iapapaberry": {
     "id": "iapapaberry",
@@ -95,8 +75,7 @@
   },
   "kingsrock": {
     "id": "kingsrock",
-    "inherit": true,
-    "flinch_chance": 0.1
+    "inherit": true
   },
   "lansatberry": {
     "id": "lansatberry",
@@ -111,7 +90,7 @@
   "levelball": {
     "id": "levelball",
     "inherit": true,
-    "isNonstandard": "Unobtainable"
+    "isNonstandard": null
   },
   "liechiberry": {
     "id": "liechiberry",
@@ -121,26 +100,21 @@
   },
   "lightball": {
     "id": "lightball",
-    "inherit": true,
-    "boost_stats": {"atk": 2, "spa": 2},
-    "species_only": "Pikachu"
+    "inherit": true
   },
   "loveball": {
     "id": "loveball",
     "inherit": true,
-    "isNonstandard": "Unobtainable"
+    "isNonstandard": null
   },
   "lureball": {
     "id": "lureball",
     "inherit": true,
-    "isNonstandard": "Unobtainable"
+    "isNonstandard": null
   },
   "magnet": {
     "id": "magnet",
-    "inherit": true,
-    "onModifySpAPriority": 1,
-    "boost_type": "Electric",
-    "boost_multiplier": 1.1
+    "inherit": true
   },
   "magoberry": {
     "id": "magoberry",
@@ -150,45 +124,30 @@
   },
   "metalcoat": {
     "id": "metalcoat",
-    "inherit": true,
-    "onModifyAtkPriority": 1,
-    "boost_type": "Steel",
-    "boost_multiplier": 1.1
+    "inherit": true
   },
   "miracleseed": {
     "id": "miracleseed",
-    "inherit": true,
-    "onModifySpAPriority": 1,
-    "boost_type": "Grass",
-    "boost_multiplier": 1.1
+    "inherit": true
   },
   "moonball": {
     "id": "moonball",
     "inherit": true,
-    "isNonstandard": "Unobtainable"
+    "isNonstandard": null
   },
   "mysticwater": {
     "id": "mysticwater",
-    "inherit": true,
-    "onModifySpAPriority": 1,
-    "boost_type": "Water",
-    "boost_multiplier": 1.1
+    "inherit": true
   },
   "nevermeltice": {
     "id": "nevermeltice",
-    "inherit": true,
-    "onModifySpAPriority": 1,
-    "boost_type": "Ice",
-    "boost_multiplier": 1.1
+    "inherit": true
   },
   "oranberry": {
     "id": "oranberry",
     "inherit": true,
     "onResidualOrder": 10,
-    "onResidualSubOrder": 4,
-    "heal_amount": 10,
-    "heal_threshold": 0.5,
-    "consume": true
+    "onResidualSubOrder": 4
   },
   "petayaberry": {
     "id": "petayaberry",
@@ -198,15 +157,11 @@
   },
   "poisonbarb": {
     "id": "poisonbarb",
-    "inherit": true,
-    "onModifyAtkPriority": 1,
-    "boost_type": "Poison",
-    "boost_multiplier": 1.1
+    "inherit": true
   },
   "quickclaw": {
     "id": "quickclaw",
-    "inherit": true,
-    "quickclaw_chance": 0.2
+    "inherit": true
   },
   "salacberry": {
     "id": "salacberry",
@@ -217,58 +172,39 @@
   "seaincense": {
     "id": "seaincense",
     "inherit": true,
-    "onModifySpAPriority": 1,
-    "boost_type": "Water",
-    "boost_multiplier": 1.05
+    "onModifySpAPriority": 1
   },
   "sharpbeak": {
     "id": "sharpbeak",
-    "inherit": true,
-    "onModifyAtkPriority": 1,
-    "boost_type": "Flying",
-    "boost_multiplier": 1.1
+    "inherit": true
   },
   "silkscarf": {
     "id": "silkscarf",
     "inherit": true,
-    "onModifyAtkPriority": 1,
-    "boost_type": "Normal",
-    "boost_multiplier": 1.1
+    "onModifyAtkPriority": 1
   },
   "silverpowder": {
     "id": "silverpowder",
-    "inherit": true,
-    "onModifyAtkPriority": 1,
-    "boost_type": "Bug",
-    "boost_multiplier": 1.1
+    "inherit": true
   },
   "sitrusberry": {
     "id": "sitrusberry",
     "inherit": true,
     "onResidualOrder": 10,
-    "onResidualSubOrder": 4,
-    "heal_amount": 30,
-    "heal_threshold": 0.5,
-    "consume": true
+    "onResidualSubOrder": 4
   },
   "softsand": {
     "id": "softsand",
-    "inherit": true,
-    "onModifyAtkPriority": 1,
-    "boost_type": "Ground",
-    "boost_multiplier": 1.1
+    "inherit": true
   },
   "spelltag": {
     "id": "spelltag",
-    "inherit": true,
-    "onModifyAtkPriority": 1,
-    "boost_type": "Ghost",
-    "boost_multiplier": 1.1
+    "inherit": true
   },
   "sportball": {
     "id": "sportball",
     "inherit": true,
-    "isNonstandard": "Unobtainable"
+    "isNonstandard": null
   },
   "starfberry": {
     "id": "starfberry",
@@ -278,10 +214,7 @@
   },
   "twistedspoon": {
     "id": "twistedspoon",
-    "inherit": true,
-    "onModifySpAPriority": 1,
-    "boost_type": "Psychic",
-    "boost_multiplier": 1.1
+    "inherit": true
   },
   "wikiberry": {
     "id": "wikiberry",
@@ -289,10 +222,105 @@
     "onResidualOrder": 10,
     "onResidualSubOrder": 4
   },
+  "brightpowder": {
+    "id": "brightpowder",
+    "inherit": true
+  },
+  "dragonscale": {
+    "id": "dragonscale",
+    "inherit": true
+  },
+  "focusband": {
+    "id": "focusband",
+    "inherit": true
+  },
+  "leftovers": {
+    "id": "leftovers",
+    "inherit": true,
+    "onResidualOrder": 5,
+    "onResidualSubOrder": 1
+  },
+  "luckypunch": {
+    "id": "luckypunch",
+    "inherit": true,
+    "onModifyCritRatioPriority": -1
+  },
+  "metalpowder": {
+    "id": "metalpowder",
+    "inherit": true
+  },
+  "stick": {
+    "id": "stick",
+    "inherit": true,
+    "onModifyCritRatioPriority": -1
+  },
   "thickclub": {
     "id": "thickclub",
+    "inherit": true
+  },
+  "berserkgene": {
+    "id": "berserkgene",
     "inherit": true,
-    "species_only": "Marowak",
-    "boost_stats": {"atk": 2}
+    "isNonstandard": null
+  },
+  "berry": {
+    "id": "berry",
+    "inherit": true,
+    "isNonstandard": null
+  },
+  "bitterberry": {
+    "id": "bitterberry",
+    "inherit": true,
+    "isNonstandard": null
+  },
+  "burntberry": {
+    "id": "burntberry",
+    "inherit": true,
+    "isNonstandard": null
+  },
+  "goldberry": {
+    "id": "goldberry",
+    "inherit": true,
+    "isNonstandard": null
+  },
+  "iceberry": {
+    "id": "iceberry",
+    "inherit": true,
+    "isNonstandard": null
+  },
+  "mintberry": {
+    "id": "mintberry",
+    "inherit": true,
+    "isNonstandard": null
+  },
+  "miracleberry": {
+    "id": "miracleberry",
+    "inherit": true,
+    "isNonstandard": null
+  },
+  "mysteryberry": {
+    "id": "mysteryberry",
+    "inherit": true,
+    "isNonstandard": null
+  },
+  "pinkbow": {
+    "id": "pinkbow",
+    "inherit": true,
+    "isNonstandard": null
+  },
+  "polkadotbow": {
+    "id": "polkadotbow",
+    "inherit": true,
+    "isNonstandard": null
+  },
+  "przcureberry": {
+    "id": "przcureberry",
+    "inherit": true,
+    "isNonstandard": null
+  },
+  "psncureberry": {
+    "id": "psncureberry",
+    "inherit": true,
+    "isNonstandard": null
   }
 }
