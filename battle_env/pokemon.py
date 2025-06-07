@@ -52,9 +52,14 @@ class Pokemon:
 
         # Status condition: None or one of 'brn', 'par', 'psn', 'tox', 'slp', 'frz'
         self.status: str | None = None
+        self.toxic_counter: int = 0
+        self.sleep_counter: int = 0
 
         # Moveset: list of Move objects
         self.moves = moves or []
+
+        # Volatile conditions such as "attract" or "substitute"
+        self.volatiles: dict[str, dict] = {}
 
     def _calc_actual_stats(self) -> dict[str, int]:
         """Calculate actual HP, atk, def, spa, spd, spe using Gen 3 formulas."""
@@ -89,10 +94,16 @@ class Pokemon:
         if self.status:
             raise ValueError(f"{self.name} already has status {self.status}.")
         self.status = status
+        if status == 'tox':
+            self.toxic_counter = 1
+        if status == 'slp':
+            self.sleep_counter = 2
 
     def heal_status(self):
         """Clear any status condition."""
         self.status = None
+        self.toxic_counter = 0
+        self.sleep_counter = 0
 
     def change_stage(self, stat: str, delta: int):
         """Modify a stat stage by delta, clamped between -6 and +6."""
@@ -106,3 +117,14 @@ class Pokemon:
         move = self.moves[index]
         move.use_pp()
         return move
+
+    # --- Volatile Conditions Helpers ---
+    def add_volatile(self, name: str, source=None, duration: int | None = None):
+        """Add a volatile condition with optional duration."""
+        self.volatiles[name] = {
+            "source": source,
+            "duration": duration,
+        }
+
+    def remove_volatile(self, name: str):
+        self.volatiles.pop(name, None)

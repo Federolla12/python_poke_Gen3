@@ -26,6 +26,8 @@ class Move:
         self.max_pp = max_pp
         self.current_pp = max_pp
         self.metadata: dict = {}
+        self.id: str | None = None
+        self.flags: dict | None = None
 
     def use_pp(self):
         """Consume 1 PP; raise if no PP remains."""
@@ -57,5 +59,7 @@ def load_moves(json_path: Path | str = None) -> dict[str, "Move"]:
             max_pp=meta.get("pp", 1),
         )
         mv.metadata = meta
+        mv.id = meta.get("id", name)
+        mv.flags = meta.get("flags", {})
         registry[name] = mv
     return registry
