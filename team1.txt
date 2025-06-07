@@ -1,5 +1,6 @@
 Miltank @ Lum Berry  
 Ability: Thick Fat  
+Level: 50  
 Happiness: 0  
 EVs: 252 HP / 4 Atk / 252 Def  
 Lax Nature  
@@ -10,6 +11,7 @@ Lax Nature
 
 Articuno @ Twisted Spoon  
 Ability: Pressure  
+Level: 50  
 Happiness: 0  
 EVs: 4 Atk / 252 SpA / 252 Spe  
 Mild Nature  
@@ -17,4 +19,3 @@ Mild Nature
 - Blizzard  
 - Double-Edge  
 - Extrasensory  
-
