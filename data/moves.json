@@ -1,0 +1,319 @@
+{
+  "absorb": {
+    "id": "absorb",
+    "pp": 20
+  },
+  "acid": {
+    "id": "acid"
+  },
+  "ancientpower": {
+    "id": "ancientpower",
+    "flags": {
+      "contact": 1,
+      "protect": 1,
+      "mirror": 1,
+      "metronome": 1
+    }
+  },
+  "assist": {
+    "id": "assist",
+    "flags": {
+      "metronome": 1,
+      "noassist": 1,
+      "nosleeptalk": 1
+    }
+  },
+  "astonish": {
+    "id": "astonish"
+  },
+  "beatup": {
+    "id": "beatup"
+  },
+  "bide": {
+    "id": "bide",
+    "accuracy": 100,
+    "priority": 0
+  },
+  "blizzard": {
+    "id": "blizzard"
+  },
+  "brickbreak": {
+    "id": "brickbreak"
+  },
+  "charge": {
+    "id": "charge"
+  },
+  "conversion": {
+    "id": "conversion"
+  },
+  "counter": {
+    "id": "counter"
+  },
+  "covet": {
+    "id": "covet",
+    "flags": {
+      "protect": 1,
+      "mirror": 1,
+      "noassist": 1
+    }
+  },
+  "crunch": {
+    "id": "crunch"
+  },
+  "dig": {
+    "id": "dig",
+    "basePower": 60
+  },
+  "disable": {
+    "id": "disable",
+    "accuracy": 55,
+    "flags": {
+      "protect": 1,
+      "mirror": 1,
+      "bypasssub": 1,
+      "metronome": 1
+    }
+  },
+  "dive": {
+    "id": "dive",
+    "basePower": 60
+  },
+  "doomdesire": {
+    "id": "doomdesire"
+  },
+  "encore": {
+    "id": "encore"
+  },
+  "extrasensory": {
+    "id": "extrasensory"
+  },
+  "fakeout": {
+    "id": "fakeout",
+    "flags": {
+      "protect": 1,
+      "mirror": 1,
+      "metronome": 1
+    }
+  },
+  "feintattack": {
+    "id": "feintattack",
+    "flags": {
+      "protect": 1,
+      "mirror": 1,
+      "metronome": 1
+    }
+  },
+  "flail": {
+    "id": "flail"
+  },
+  "flash": {
+    "id": "flash",
+    "accuracy": 70
+  },
+  "fly": {
+    "id": "fly",
+    "basePower": 70
+  },
+  "followme": {
+    "id": "followme"
+  },
+  "foresight": {
+    "id": "foresight",
+    "accuracy": 100
+  },
+  "furycutter": {
+    "id": "furycutter"
+  },
+  "gigadrain": {
+    "id": "gigadrain",
+    "pp": 5
+  },
+  "glare": {
+    "id": "glare"
+  },
+  "haze": {
+    "id": "haze"
+  },
+  "hiddenpower": {
+    "id": "hiddenpower",
+    "category": "Physical"
+  },
+  "highjumpkick": {
+    "id": "highjumpkick",
+    "basePower": 85
+  },
+  "hypnosis": {
+    "id": "hypnosis",
+    "accuracy": 60
+  },
+  "jumpkick": {
+    "id": "jumpkick",
+    "basePower": 70
+  },
+  "leafblade": {
+    "id": "leafblade",
+    "basePower": 70
+  },
+  "lockon": {
+    "id": "lockon",
+    "accuracy": 100
+  },
+  "megadrain": {
+    "id": "megadrain",
+    "pp": 10
+  },
+  "memento": {
+    "id": "memento",
+    "accuracy": true
+  },
+  "mindreader": {
+    "id": "mindreader",
+    "accuracy": 100
+  },
+  "mimic": {
+    "id": "mimic",
+    "flags": {
+      "protect": 1,
+      "bypasssub": 1,
+      "allyanim": 1,
+      "failencore": 1,
+      "noassist": 1,
+      "failmimic": 1
+    }
+  },
+  "mirrorcoat": {
+    "id": "mirrorcoat"
+  },
+  "mirrormove": {
+    "id": "mirrormove",
+    "flags": {
+      "metronome": 1,
+      "failencore": 1,
+      "nosleeptalk": 1,
+      "noassist": 1
+    }
+  },
+  "naturepower": {
+    "id": "naturepower",
+    "accuracy": 95
+  },
+  "needlearm": {
+    "id": "needlearm"
+  },
+  "nightmare": {
+    "id": "nightmare",
+    "accuracy": true
+  },
+  "odorsleuth": {
+    "id": "odorsleuth",
+    "accuracy": 100
+  },
+  "outrage": {
+    "id": "outrage",
+    "basePower": 90
+  },
+  "overheat": {
+    "id": "overheat",
+    "flags": {
+      "contact": 1,
+      "protect": 1,
+      "mirror": 1,
+      "metronome": 1
+    }
+  },
+  "petaldance": {
+    "id": "petaldance",
+    "basePower": 70
+  },
+  "recover": {
+    "id": "recover",
+    "pp": 20
+  },
+  "reversal": {
+    "id": "reversal"
+  },
+  "rocksmash": {
+    "id": "rocksmash",
+    "basePower": 20
+  },
+  "sketch": {
+    "id": "sketch",
+    "flags": {
+      "bypasssub": 1,
+      "failencore": 1,
+      "noassist": 1,
+      "failmimic": 1,
+      "nosketch": 1
+    }
+  },
+  "sleeptalk": {
+    "id": "sleeptalk"
+  },
+  "spite": {
+    "id": "spite"
+  },
+  "stockpile": {
+    "id": "stockpile",
+    "pp": 10
+  },
+  "struggle": {
+    "id": "struggle",
+    "accuracy": 100,
+    "flags": {
+      "contact": 1,
+      "protect": 1,
+      "noassist": 1,
+      "failencore": 1,
+      "failmimic": 1,
+      "nosketch": 1
+    }
+  },
+  "surf": {
+    "id": "surf"
+  },
+  "taunt": {
+    "id": "taunt",
+    "flags": {
+      "protect": 1,
+      "bypasssub": 1,
+      "metronome": 1
+    }
+  },
+  "teeterdance": {
+    "id": "teeterdance",
+    "flags": {
+      "protect": 1,
+      "metronome": 1
+    }
+  },
+  "tickle": {
+    "id": "tickle",
+    "flags": {
+      "protect": 1,
+      "reflectable": 1,
+      "mirror": 1,
+      "bypasssub": 1,
+      "metronome": 1
+    }
+  },
+  "uproar": {
+    "id": "uproar"
+  },
+  "vinewhip": {
+    "id": "vinewhip",
+    "pp": 10
+  },
+  "volttackle": {
+    "id": "volttackle"
+  },
+  "waterfall": {
+    "id": "waterfall"
+  },
+  "weatherball": {
+    "id": "weatherball"
+  },
+  "zapcannon": {
+    "id": "zapcannon",
+    "basePower": 100
+  }
+}
