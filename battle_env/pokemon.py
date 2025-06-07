@@ -128,3 +128,18 @@ class Pokemon:
 
     def remove_volatile(self, name: str):
         self.volatiles.pop(name, None)
+
+    # --- Misc Helpers ---
+    def heal(self, amount: int):
+        self.current_hp = min(self.stats['hp'], self.current_hp + amount)
+        return self.current_hp
+
+    def try_set_status(self, status: str, source=None) -> bool:
+        if self.status:
+            return False
+        self.set_status(status)
+        return True
+
+    def remove_item(self):
+        from .item import Item
+        self.item = Item(self)

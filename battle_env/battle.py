@@ -108,8 +108,9 @@ class Battle:
         move1 = self.p1.moves[action1['index']]
         move2 = self.p2.moves[action2['index']]
 
-        # Determine action order by priority, then speed
-        prio1, prio2 = move1.priority, move2.priority
+        # Determine action order by priority (with item bonuses), then speed
+        prio1 = move1.priority + self.p1.item.get_priority_bonus(move1, self)
+        prio2 = move2.priority + self.p2.item.get_priority_bonus(move2, self)
         if prio1 != prio2:
             first, second = (self.p1, move1, self.p2, move2) if prio1 > prio2 else (self.p2, move2, self.p1, move1)
         else:
@@ -127,6 +128,11 @@ class Battle:
         # Execute actions in order
         for attacker, move, defender in [(first[0], first[1], first[2]), (second[0], second[1], second[2])]:
             if attacker.is_fainted() or defender.is_fainted():
+                continue
+
+            if attacker.volatiles.get('flinch'):
+                attacker.remove_volatile('flinch')
+                self.log(f"{attacker.name} flinched and couldn't move!")
                 continue
 
             # on_before_move hook
@@ -183,6 +189,8 @@ class Battle:
 
             low, high = get_damage_range(initial, atk_data, def_data, move_data, is_crit=False, weather=self.weather)
             dmg = random.choice(range(low, high + 1))
+            dmg = attacker.item.modify_damage(move, attacker, target, dmg, self)
+            dmg = defender.item.modify_damage(move, attacker, target, dmg, self)
             # Screens reduce damage
             def_team = self.team1 if defender is self.team1.active() else self.team2
             if def_team.screens.get('reflect') and move.category == 'Physical':
