@@ -1,5 +1,6 @@
 Marowak (M) @ Thick Club  
-Ability: Rock Head  
+Ability: Rock Head
+Level: 50
 Happiness: 0  
 EVs: 252 HP / 252 Atk / 4 SpD  
 Adamant Nature  
@@ -9,7 +10,8 @@ Adamant Nature
 - Earthquake  
 
 Politoed (F) @ Leftovers  
-Ability: Water Absorb  
+Ability: Water Absorb
+Level: 50
 Happiness: 0  
 EVs: 252 HP / 252 Atk / 4 SpA  
 Brave Nature  
