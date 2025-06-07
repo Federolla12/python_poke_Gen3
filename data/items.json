@@ -1,0 +1,243 @@
+{
+  "aguavberry": {
+    "id": "aguavberry",
+    "inherit": true,
+    "onResidualOrder": 10,
+    "onResidualSubOrder": 4
+  },
+  "apicotberry": {
+    "id": "apicotberry",
+    "inherit": true,
+    "onResidualOrder": 10,
+    "onResidualSubOrder": 4
+  },
+  "berryjuice": {
+    "id": "berryjuice",
+    "inherit": true,
+    "onResidualOrder": 10,
+    "onResidualSubOrder": 4,
+    "isNonstandard": "Unobtainable"
+  },
+  "blackbelt": {
+    "id": "blackbelt",
+    "inherit": true,
+    "onModifyAtkPriority": 1
+  },
+  "blackglasses": {
+    "id": "blackglasses",
+    "inherit": true,
+    "onModifySpAPriority": 1
+  },
+  "charcoal": {
+    "id": "charcoal",
+    "inherit": true,
+    "onModifySpAPriority": 1
+  },
+  "dragonfang": {
+    "id": "dragonfang",
+    "inherit": true,
+    "onModifySpAPriority": 1
+  },
+  "enigmaberry": {
+    "id": "enigmaberry",
+    "name": "Enigma Berry",
+    "spritenum": 124,
+    "isBerry": true,
+    "num": 208,
+    "gen": 3,
+    "isNonstandard": "Unobtainable"
+  },
+  "fastball": {
+    "id": "fastball",
+    "inherit": true,
+    "isNonstandard": "Unobtainable"
+  },
+  "figyberry": {
+    "id": "figyberry",
+    "inherit": true,
+    "onResidualOrder": 10,
+    "onResidualSubOrder": 4
+  },
+  "ganlonberry": {
+    "id": "ganlonberry",
+    "inherit": true,
+    "onResidualOrder": 10,
+    "onResidualSubOrder": 4
+  },
+  "hardstone": {
+    "id": "hardstone",
+    "inherit": true,
+    "onModifyAtkPriority": 1
+  },
+  "heavyball": {
+    "id": "heavyball",
+    "inherit": true,
+    "isNonstandard": "Unobtainable"
+  },
+  "iapapaberry": {
+    "id": "iapapaberry",
+    "inherit": true,
+    "onResidualOrder": 10,
+    "onResidualSubOrder": 4
+  },
+  "kingsrock": {
+    "id": "kingsrock",
+    "inherit": true
+  },
+  "lansatberry": {
+    "id": "lansatberry",
+    "inherit": true,
+    "onResidualOrder": 10,
+    "onResidualSubOrder": 4
+  },
+  "laxincense": {
+    "id": "laxincense",
+    "inherit": true
+  },
+  "levelball": {
+    "id": "levelball",
+    "inherit": true,
+    "isNonstandard": "Unobtainable"
+  },
+  "liechiberry": {
+    "id": "liechiberry",
+    "inherit": true,
+    "onResidualOrder": 10,
+    "onResidualSubOrder": 4
+  },
+  "lightball": {
+    "id": "lightball",
+    "inherit": true
+  },
+  "loveball": {
+    "id": "loveball",
+    "inherit": true,
+    "isNonstandard": "Unobtainable"
+  },
+  "lureball": {
+    "id": "lureball",
+    "inherit": true,
+    "isNonstandard": "Unobtainable"
+  },
+  "magnet": {
+    "id": "magnet",
+    "inherit": true,
+    "onModifySpAPriority": 1
+  },
+  "magoberry": {
+    "id": "magoberry",
+    "inherit": true,
+    "onResidualOrder": 10,
+    "onResidualSubOrder": 4
+  },
+  "metalcoat": {
+    "id": "metalcoat",
+    "inherit": true,
+    "onModifyAtkPriority": 1
+  },
+  "miracleseed": {
+    "id": "miracleseed",
+    "inherit": true,
+    "onModifySpAPriority": 1
+  },
+  "moonball": {
+    "id": "moonball",
+    "inherit": true,
+    "isNonstandard": "Unobtainable"
+  },
+  "mysticwater": {
+    "id": "mysticwater",
+    "inherit": true,
+    "onModifySpAPriority": 1
+  },
+  "nevermeltice": {
+    "id": "nevermeltice",
+    "inherit": true,
+    "onModifySpAPriority": 1
+  },
+  "oranberry": {
+    "id": "oranberry",
+    "inherit": true,
+    "onResidualOrder": 10,
+    "onResidualSubOrder": 4
+  },
+  "petayaberry": {
+    "id": "petayaberry",
+    "inherit": true,
+    "onResidualOrder": 10,
+    "onResidualSubOrder": 4
+  },
+  "poisonbarb": {
+    "id": "poisonbarb",
+    "inherit": true,
+    "onModifyAtkPriority": 1
+  },
+  "quickclaw": {
+    "id": "quickclaw",
+    "inherit": true
+  },
+  "salacberry": {
+    "id": "salacberry",
+    "inherit": true,
+    "onResidualOrder": 10,
+    "onResidualSubOrder": 4
+  },
+  "seaincense": {
+    "id": "seaincense",
+    "inherit": true,
+    "onModifySpAPriority": 1
+  },
+  "sharpbeak": {
+    "id": "sharpbeak",
+    "inherit": true,
+    "onModifyAtkPriority": 1
+  },
+  "silkscarf": {
+    "id": "silkscarf",
+    "inherit": true,
+    "onModifyAtkPriority": 1
+  },
+  "silverpowder": {
+    "id": "silverpowder",
+    "inherit": true,
+    "onModifyAtkPriority": 1
+  },
+  "sitrusberry": {
+    "id": "sitrusberry",
+    "inherit": true,
+    "onResidualOrder": 10,
+    "onResidualSubOrder": 4
+  },
+  "softsand": {
+    "id": "softsand",
+    "inherit": true,
+    "onModifyAtkPriority": 1
+  },
+  "spelltag": {
+    "id": "spelltag",
+    "inherit": true,
+    "onModifyAtkPriority": 1
+  },
+  "sportball": {
+    "id": "sportball",
+    "inherit": true,
+    "isNonstandard": "Unobtainable"
+  },
+  "starfberry": {
+    "id": "starfberry",
+    "inherit": true,
+    "onResidualOrder": 10,
+    "onResidualSubOrder": 4
+  },
+  "twistedspoon": {
+    "id": "twistedspoon",
+    "inherit": true,
+    "onModifySpAPriority": 1
+  },
+  "wikiberry": {
+    "id": "wikiberry",
+    "inherit": true,
+    "onResidualOrder": 10,
+    "onResidualSubOrder": 4
+  }
+}
