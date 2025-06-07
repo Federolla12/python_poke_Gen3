@@ -57,6 +57,11 @@ def get_damage_range(initial_damage, attacker, defender, move, is_crit=False, we
     """
     Calculates the final damage range based on the full Gen 3 formula.
     """
+    # Moves with no base power (e.g. status moves like Rest) should never deal
+    # damage.  Early exit before applying any modifiers to avoid returning a
+    # minimum of 1 damage.
+    if move.get('power', 0) == 0:
+        return 0, 0
     # --- New: Handle Immunities Early ---
     # Before any calculation, check if the move is immune. If so, damage is 0.
     type_effectiveness = get_type_effectiveness(move['type'], defender.get('types', []))
