@@ -10,7 +10,8 @@ if TYPE_CHECKING:
 def load_abilities(json_path: Path | str = None) -> dict[str, type]:
     """Load abilities metadata from JSON and build subclasses dynamically."""
     if json_path is None:
-        json_path = Path(__file__).parent.parent / 'data' / 'abilities.json'
+        # Default to the abilities.json file located alongside this module
+        json_path = Path(__file__).with_name('abilities.json')
     data = json.loads(Path(json_path).read_text())
     registry: dict[str, type] = {}
     for name, meta in data.items():
