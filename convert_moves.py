@@ -32,8 +32,11 @@ function sanitize(obj) {
   if (obj && typeof obj === 'object') {
     const out = {};
     for (const [k, v] of Object.entries(obj)) {
-      if (typeof v === 'function') continue;
-      out[k] = sanitize(v);
+      if (typeof v === 'function') {
+        out[k] = v.toString();
+      } else {
+        out[k] = sanitize(v);
+      }
     }
     return out;
   }
@@ -42,17 +45,7 @@ function sanitize(obj) {
 const plain = {};
 for (const [id, data] of Object.entries(Moves)) {
   if (!data.gen || data.gen <= 3) {
-    plain[id] = sanitize({
-      id,
-      name: data.name,
-      type: data.type,
-      category: data.category,
-      basePower: data.basePower,
-      accuracy: data.accuracy,
-      pp: data.pp,
-      priority: data.priority,
-      flags: data.flags,
-    });
+    plain[id] = sanitize(Object.assign({id}, data));
   }
 }
 fs.writeFileSync(outPath, JSON.stringify(plain, null, 2));
