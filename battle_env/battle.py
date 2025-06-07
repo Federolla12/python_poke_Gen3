@@ -155,6 +155,17 @@ class Battle:
                 self.log(f"{attacker.name} flinched and couldn't move!")
                 continue
 
+            # Basic status checks before attempting to move
+            if attacker.status == 'slp':
+                self.log(f"{attacker.name} is fast asleep!")
+                continue
+            if attacker.status == 'frz':
+                self.log(f"{attacker.name} is frozen solid!")
+                continue
+            if attacker.status == 'par' and random.random() < 0.25:
+                self.log(f"{attacker.name} is paralyzed! It can't move!")
+                continue
+
             # on_before_move hook
             if not attacker.ability.on_before_move(move, attacker, defender, self):
                 continue
@@ -218,6 +229,9 @@ class Battle:
             if def_team.screens.get('lightscreen') and move.category == 'Special':
                 dmg //= 2
             if move.name.lower() == 'rest':
+                if attacker.current_hp == attacker.stats['hp']:
+                    self.log(f"{attacker.name}'s HP is full. The move failed!")
+                    continue
                 attacker.heal(attacker.stats['hp'])
                 attacker.heal_status()
                 attacker.set_status('slp')
@@ -225,6 +239,10 @@ class Battle:
             else:
                 target.apply_damage(dmg)
                 self.log(f"{attacker.name} used {move.name} and dealt {dmg} damage to {target.name}!")
+                if move.name.lower() == 'double-edge' and dmg > 0:
+                    recoil = max(1, dmg // 3)
+                    attacker.apply_damage(recoil)
+                    self.log(f"{attacker.name} is hurt by recoil!")
 
             # on_after_damage hooks
             attacker.ability.on_after_damage(move, attacker, target, dmg, self)
