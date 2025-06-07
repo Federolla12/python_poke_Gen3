@@ -2,7 +2,7 @@ from __future__ import annotations
 from pathlib import Path
 from copy import deepcopy
 
-from .stats_loader import get_base_stats
+from .stats_loader import get_base_stats, get_pokemon_types
 from .pokemon import Pokemon
 from .moves_loader import load_moves
 from .team import Team
@@ -39,7 +39,8 @@ def parse_showdown(text: str, moves_db: dict[str, Pokemon]|None=None) -> Team:
                 if move_name in moves_db:
                     moves.append(deepcopy(moves_db[move_name]))
         base_stats = get_base_stats(name)
-        p = Pokemon(name=name, level=100, types=['Normal'], base_stats=base_stats,
+        types = get_pokemon_types(name)
+        p = Pokemon(name=name, level=100, types=types, base_stats=base_stats,
                     ability=ability, item=item, moves=moves, gender=gender)
         team_members.append(p)
     return Team(team_members)
