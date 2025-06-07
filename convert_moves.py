@@ -1,38 +1,28 @@
 import json
-import re
 import subprocess
 import tempfile
 from pathlib import Path
 
 
-def sanitize_ts(ts_path: Path) -> Path:
-    """Convert a ``moves.ts`` file to plain JavaScript for Node."""
-    text = ts_path.read_text()
-    text = re.sub(r"export const Moves:.*?=", "globalThis.Moves =", text, 1)
-    text = text.replace(" as ID", "")
-    text = text.replace(" as unknown as ActiveMove", "")
-    text = re.sub(r" as [A-Za-z0-9_<>]+", "", text)
-    text = re.sub(r"!([\.\[])", r"\1", text)
-    text = text.replace("!++", "++")
-    # drop simple TypeScript annotations like "let x: Type" that appear in Gen2 files
-    text = re.sub(r"(\blet\s+\w+)\s*:[^=;\n]+", r"\1", text)
-    # remove non-null assertions before comparison operators
-    text = re.sub(r"([\w\]\)])!([\s<>=])", r"\1\2", text)
-    tmp = tempfile.NamedTemporaryFile("w+", suffix=".js", delete=False)
-    tmp.write(text)
-    tmp.flush()
-    return Path(tmp.name)
+def compile_ts(ts_file: Path) -> Path:
+    """Compile a TypeScript file to JavaScript using esbuild."""
+    out = tempfile.NamedTemporaryFile("w+", suffix=".js", delete=False)
+    out.close()
+    subprocess.run(
+        ["npx", "esbuild", ts_file.as_posix(), "--format=cjs", f"--outfile={out.name}"],
+        check=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return Path(out.name)
 
 
-def run_node(js_input: Path, output_json: Path):
+def run_node(js_input: Path, output_json: Path) -> None:
     node_script = """
 const fs = require('fs');
-const vm = require('vm');
-const [,, jsPath, outPath] = process.argv;
-const code = fs.readFileSync(jsPath, 'utf8');
-const context = {};
-vm.runInNewContext(code, context);
-const Moves = context.Moves;
+const mod = require(process.argv[2]);
+const outPath = process.argv[3];
+const Moves = mod.Moves || mod.default || {};
 function sanitize(obj) {
   if (Array.isArray(obj)) return obj.map(sanitize);
   if (obj && typeof obj === 'object') {
@@ -63,29 +53,35 @@ fs.writeFileSync(outPath, JSON.stringify(plain, null, 2));
             ["node", helper.name, js_input.as_posix(), output_json.as_posix()],
             check=True,
         )
+    Path(helper.name).unlink(missing_ok=True)
 
 
 def convert(ts_file: Path) -> dict:
     """Convert a Showdown ``moves.ts`` file into a plain dictionary."""
-    sanitized = sanitize_ts(ts_file)
+    compiled = compile_ts(ts_file)
     with tempfile.NamedTemporaryFile("r+", suffix=".json", delete=False) as tmp:
         tmp_path = Path(tmp.name)
     try:
-        run_node(sanitized, tmp_path)
+        run_node(compiled, tmp_path)
         return json.loads(tmp_path.read_text())
     finally:
-        sanitized.unlink(missing_ok=True)
+        compiled.unlink(missing_ok=True)
         tmp_path.unlink(missing_ok=True)
 
 
-def main():
+def main() -> None:
     repo_root = Path(__file__).resolve().parent
     out_dir = repo_root / "data"
     out_dir.mkdir(exist_ok=True)
     out_file = out_dir / "moves.json"
 
     data: dict[str, dict] = {}
-    for sub in ["3gen_env_Showdown", "2gen_env_Showdown"]:
+
+    base_ts = repo_root / "data" / "base_moves.ts"
+    if base_ts.exists():
+        data.update(convert(base_ts))
+
+    for sub in ["2gen_env_Showdown", "3gen_env_Showdown"]:
         ts_file = repo_root / sub / "moves.ts"
         if ts_file.exists():
             data.update(convert(ts_file))
