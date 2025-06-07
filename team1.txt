@@ -6,7 +6,7 @@ EVs: 252 HP / 4 Atk / 252 Def
 Lax Nature  
 - Rest  
 - Body Slam  
-- Blizzard  
+- Toxic  
 - Curse  
 
 Articuno @ Twisted Spoon  
