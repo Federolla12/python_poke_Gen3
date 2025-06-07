@@ -105,14 +105,18 @@ class Battle:
             self.log('A switch occurred.')
             return
 
-        move1 = self.p1.moves[action1['index']]
-        move2 = self.p2.moves[action2['index']]
+        # moves already retrieved via choose_move above
 
         # Determine action order by priority (with item bonuses), then speed
         prio1 = move1.priority + self.p1.item.get_priority_bonus(move1, self)
         prio2 = move2.priority + self.p2.item.get_priority_bonus(move2, self)
         if prio1 != prio2:
-            first, second = (self.p1, move1, self.p2, move2) if prio1 > prio2 else (self.p2, move2, self.p1, move1)
+            if prio1 > prio2:
+                first = (self.p1, move1, self.p2)
+                second = (self.p2, move2, self.p1)
+            else:
+                first = (self.p2, move2, self.p1)
+                second = (self.p1, move1, self.p2)
         else:
             sp1 = self.p1.get_modified_stat('spe')
             sp2 = self.p2.get_modified_stat('spe')
@@ -121,9 +125,11 @@ class Battle:
             if self.p2.status == 'par':
                 sp2 //= 4
             if sp1 > sp2:
-                first, second = (self.p1, move1, self.p2, move2)
+                first = (self.p1, move1, self.p2)
+                second = (self.p2, move2, self.p1)
             else:
-                first, second = (self.p2, move2, self.p1, move1)
+                first = (self.p2, move2, self.p1)
+                second = (self.p1, move1, self.p2)
 
         # Execute actions in order
         for attacker, move, defender in [(first[0], first[1], first[2]), (second[0], second[1], second[2])]:

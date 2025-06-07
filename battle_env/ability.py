@@ -23,18 +23,15 @@ def load_abilities(json_path: Path | str = None) -> dict[str, type]:
 
 
 class Ability:
-    """
-    Generic Gen 3 Ability loaded from metadata.
-    Hooks: on_start, on_switch_in, on_before_move, on_try_hit,
-           on_foe_redirect, on_foe_trap_pokemon, on_after_damage,
-           on_end_of_turn
-    """
-    name: str
-    metadata: dict
+    """Generic Gen 3 Ability loaded from metadata."""
+    name: str = ""
+    metadata: dict = {}
 
     def __init__(self, owner: 'Pokemon'):
         self.owner = owner
-        self.name = self.metadata.get('name', self.name)
+        meta = getattr(self, 'metadata', {})
+        self.metadata = meta
+        self.name = meta.get('name', getattr(self, 'name', ''))
 
     def on_start(self, battle: 'Battle'):
         data = self.metadata.get('on_start', {})

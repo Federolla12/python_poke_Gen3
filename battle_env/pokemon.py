@@ -31,6 +31,7 @@ class Pokemon:
         ability: str = None,
         item: str = None,
         moves: list = None,
+        gender: str | None = None,
     ):
         self.name = name
         self.level = level
@@ -40,6 +41,7 @@ class Pokemon:
         self.evs = evs or {stat: 0 for stat in base_stats}
         self.ability = ability
         self.item = item
+        self.gender = gender
 
         # Calculate actual stats
         self.stats = self._calc_actual_stats()
@@ -112,10 +114,17 @@ class Pokemon:
 
     def choose_move(self, index: int):
         """Select a move by index and decrement its PP."""
+        if not self.moves:
+            from .moves_loader import load_moves
+            struggle = load_moves().get("struggle")
+            return struggle
         if index < 0 or index >= len(self.moves):
             raise IndexError("Invalid move index.")
         move = self.moves[index]
-        move.use_pp()
+        try:
+            move.use_pp()
+        except ValueError:
+            pass
         return move
 
     # --- Volatile Conditions Helpers ---
