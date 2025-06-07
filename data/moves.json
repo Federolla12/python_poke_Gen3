@@ -1,13 +1,22 @@
 {
   "absorb": {
     "id": "absorb",
+    "inherit": true,
     "pp": 20
   },
   "acid": {
-    "id": "acid"
+    "id": "acid",
+    "inherit": true,
+    "secondary": {
+      "chance": 10,
+      "boosts": {
+        "def": -1
+      }
+    }
   },
   "ancientpower": {
     "id": "ancientpower",
+    "inherit": true,
     "flags": {
       "contact": 1,
       "protect": 1,
@@ -17,6 +26,7 @@
   },
   "assist": {
     "id": "assist",
+    "inherit": true,
     "flags": {
       "metronome": 1,
       "noassist": 1,
@@ -24,33 +34,74 @@
     }
   },
   "astonish": {
-    "id": "astonish"
+    "id": "astonish",
+    "inherit": true,
+    "basePowerCallback": "basePowerCallback(pokemon, target) {\n\t\t\tif (target.volatiles['minimize']) return 60;\n\t\t\treturn 30;\n\t\t}"
   },
   "beatup": {
-    "id": "beatup"
+    "id": "beatup",
+    "inherit": true,
+    "onModifyMove": "onModifyMove(move, pokemon) {\n\t\t\tpokemon.addVolatile('beatup');\n\t\t\tmove.type = '???';\n\t\t\tmove.category = 'Special';\n\t\t\tmove.allies = pokemon.side.pokemon.filter(ally => !ally.fainted && !ally.status);\n\t\t\tmove.multihit = move.allies.length;\n\t\t}",
+    "condition": {
+      "duration": 1,
+      "onModifySpAPriority": -101,
+      "onModifySpA": "onModifySpA(atk, pokemon, defender, move) {\n\t\t\t\t// https://www.smogon.com/forums/posts/8992145/\n\t\t\t\t// this.add('-activate', pokemon, 'move: Beat Up', '[of] ' + move.allies[0].name);\n\t\t\t\tthis.event.modifier = 1;\n\t\t\t\treturn this.dex.species.get(move.allies.shift().set.species).baseStats.atk;\n\t\t\t}",
+      "onFoeModifySpDPriority": -101,
+      "onFoeModifySpD": "onFoeModifySpD(def, pokemon) {\n\t\t\t\tthis.event.modifier = 1;\n\t\t\t\treturn this.dex.species.get(pokemon.set.species).baseStats.def;\n\t\t\t}"
+    }
   },
   "bide": {
     "id": "bide",
+    "inherit": true,
     "accuracy": 100,
-    "priority": 0
+    "priority": 0,
+    "condition": {
+      "duration": 3,
+      "onLockMove": "bide",
+      "onStart": "onStart(pokemon) {\n\t\t\t\tthis.effectState.totalDamage = 0;\n\t\t\t\tthis.add('-start', pokemon, 'move: Bide');\n\t\t\t}",
+      "onDamagePriority": -101,
+      "onDamage": "onDamage(damage, target, source, move) {\n\t\t\t\tif (!move || move.effectType !== 'Move' || !source) return;\n\t\t\t\tthis.effectState.totalDamage += damage;\n\t\t\t\tthis.effectState.lastDamageSource = source;\n\t\t\t}",
+      "onBeforeMove": "onBeforeMove(pokemon, target, move) {\n\t\t\t\tif (this.effectState.duration === 1) {\n\t\t\t\t\tthis.add('-end', pokemon, 'move: Bide');\n\t\t\t\t\tif (!this.effectState.totalDamage) {\n\t\t\t\t\t\tthis.add('-fail', pokemon);\n\t\t\t\t\t\treturn false;\n\t\t\t\t\t}\n\t\t\t\t\ttarget = this.effectState.lastDamageSource;\n\t\t\t\t\tif (!target) {\n\t\t\t\t\t\tthis.add('-fail', pokemon);\n\t\t\t\t\t\treturn false;\n\t\t\t\t\t}\n\t\t\t\t\tif (!target.isActive) {\n\t\t\t\t\t\tconst possibleTarget = this.getRandomTarget(pokemon, this.dex.moves.get('pound'));\n\t\t\t\t\t\tif (!possibleTarget) {\n\t\t\t\t\t\t\tthis.add('-miss', pokemon);\n\t\t\t\t\t\t\treturn false;\n\t\t\t\t\t\t}\n\t\t\t\t\t\ttarget = possibleTarget;\n\t\t\t\t\t}\n\t\t\t\t\tconst moveData = {\n\t\t\t\t\t\tid: 'bide',\n\t\t\t\t\t\tname: \"Bide\",\n\t\t\t\t\t\taccuracy: 100,\n\t\t\t\t\t\tdamage: this.effectState.totalDamage * 2,\n\t\t\t\t\t\tcategory: \"Physical\",\n\t\t\t\t\t\tpriority: 0,\n\t\t\t\t\t\tflags: { contact: 1, protect: 1 },\n\t\t\t\t\t\teffectType: 'Move',\n\t\t\t\t\t\ttype: 'Normal',\n\t\t\t\t\t};\n\t\t\t\t\tthis.actions.tryMoveHit(target, pokemon, moveData);\n\t\t\t\t\tpokemon.removeVolatile('bide');\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\t\t\t\tthis.add('-activate', pokemon, 'move: Bide');\n\t\t\t}",
+      "onMoveAborted": "onMoveAborted(pokemon) {\n\t\t\t\tpokemon.removeVolatile('bide');\n\t\t\t}",
+      "onEnd": "onEnd(pokemon) {\n\t\t\t\tthis.add('-end', pokemon, 'move: Bide', '[silent]');\n\t\t\t}"
+    }
   },
   "blizzard": {
-    "id": "blizzard"
+    "id": "blizzard",
+    "inherit": true,
+    "onModifyMove": "onModifyMove() { }"
   },
   "brickbreak": {
-    "id": "brickbreak"
+    "id": "brickbreak",
+    "inherit": true,
+    "onTryHit": "onTryHit(target, source) {\n\t\t\t// will shatter screens through sub, before you hit\n\t\t\tconst foe = source.side.foe;\n\t\t\tfoe.removeSideCondition('reflect');\n\t\t\tfoe.removeSideCondition('lightscreen');\n\t\t}"
   },
   "charge": {
-    "id": "charge"
+    "id": "charge",
+    "inherit": true,
+    "boosts": null
   },
   "conversion": {
-    "id": "conversion"
+    "id": "conversion",
+    "inherit": true,
+    "onHit": "onHit(target) {\n\t\t\tconst possibleTypes = target.moveSlots.map(moveSlot => {\n\t\t\t\tconst move = this.dex.moves.get(moveSlot.id);\n\t\t\t\tif (move.id !== 'curse' && !target.hasType(move.type)) {\n\t\t\t\t\treturn move.type;\n\t\t\t\t}\n\t\t\t\treturn '';\n\t\t\t}).filter(type => type);\n\t\t\tif (!possibleTypes.length) {\n\t\t\t\treturn false;\n\t\t\t}\n\t\t\tconst type = this.sample(possibleTypes);\n\n\t\t\tif (!target.setType(type)) return false;\n\t\t\tthis.add('-start', target, 'typechange', type);\n\t\t}"
   },
   "counter": {
-    "id": "counter"
+    "id": "counter",
+    "inherit": true,
+    "condition": {
+      "duration": 1,
+      "noCopy": true,
+      "onStart": "onStart(target, source, move) {\n\t\t\t\tthis.effectState.slot = null;\n\t\t\t\tthis.effectState.damage = 0;\n\t\t\t}",
+      "onRedirectTargetPriority": -1,
+      "onRedirectTarget": "onRedirectTarget(target, source, source2) {\n\t\t\t\tif (source !== this.effectState.target || !this.effectState.slot) return;\n\t\t\t\treturn this.getAtSlot(this.effectState.slot);\n\t\t\t}",
+      "onDamagePriority": -101,
+      "onDamage": "onDamage(damage, target, source, effect) {\n\t\t\t\tif (\n\t\t\t\t\teffect.effectType === 'Move' && !source.isAlly(target) &&\n\t\t\t\t\t(effect.category === 'Physical' || effect.id === 'hiddenpower')\n\t\t\t\t) {\n\t\t\t\t\tthis.effectState.slot = source.getSlot();\n\t\t\t\t\tthis.effectState.damage = 2 * damage;\n\t\t\t\t}\n\t\t\t}"
+    }
   },
   "covet": {
     "id": "covet",
+    "inherit": true,
     "flags": {
       "protect": 1,
       "mirror": 1,
@@ -58,37 +109,73 @@
     }
   },
   "crunch": {
-    "id": "crunch"
+    "id": "crunch",
+    "inherit": true,
+    "secondary": {
+      "chance": 20,
+      "boosts": {
+        "spd": -1
+      }
+    }
   },
   "dig": {
     "id": "dig",
+    "inherit": true,
     "basePower": 60
   },
   "disable": {
     "id": "disable",
+    "inherit": true,
     "accuracy": 55,
     "flags": {
       "protect": 1,
       "mirror": 1,
       "bypasssub": 1,
       "metronome": 1
+    },
+    "volatileStatus": "disable",
+    "condition": {
+      "durationCallback": "durationCallback() {\n\t\t\t\treturn this.random(2, 6);\n\t\t\t}",
+      "noCopy": true,
+      "onStart": "onStart(pokemon) {\n\t\t\t\tif (!this.queue.willMove(pokemon)) {\n\t\t\t\t\tthis.effectState.duration++;\n\t\t\t\t}\n\t\t\t\tif (!pokemon.lastMove) {\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\t\t\t\tfor (const moveSlot of pokemon.moveSlots) {\n\t\t\t\t\tif (moveSlot.id === pokemon.lastMove.id) {\n\t\t\t\t\t\tif (!moveSlot.pp) {\n\t\t\t\t\t\t\treturn false;\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tthis.add('-start', pokemon, 'Disable', moveSlot.move);\n\t\t\t\t\t\t\tthis.effectState.move = pokemon.lastMove.id;\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\treturn false;\n\t\t\t}",
+      "onEnd": "onEnd(pokemon) {\n\t\t\t\tthis.add('-end', pokemon, 'move: Disable');\n\t\t\t}",
+      "onBeforeMove": "onBeforeMove(attacker, defender, move) {\n\t\t\t\tif (move.id === this.effectState.move) {\n\t\t\t\t\tthis.add('cant', attacker, 'Disable', move);\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\t\t\t}",
+      "onDisableMove": "onDisableMove(pokemon) {\n\t\t\t\tfor (const moveSlot of pokemon.moveSlots) {\n\t\t\t\t\tif (moveSlot.id === this.effectState.move) {\n\t\t\t\t\t\tpokemon.disableMove(moveSlot.id);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}"
     }
   },
   "dive": {
     "id": "dive",
+    "inherit": true,
     "basePower": 60
   },
   "doomdesire": {
-    "id": "doomdesire"
+    "id": "doomdesire",
+    "inherit": true,
+    "onTry": "onTry(source, target) {\n\t\t\tif (!target.side.addSlotCondition(target, 'futuremove')) return false;\n\t\t\tconst moveData = {\n\t\t\t\tname: \"Doom Desire\",\n\t\t\t\tbasePower: 120,\n\t\t\t\tcategory: \"Physical\",\n\t\t\t\tflags: { metronome: 1, futuremove: 1 },\n\t\t\t\twillCrit: false,\n\t\t\t\ttype: '???',\n\t\t\t};\n\t\t\tconst damage = this.actions.getDamage(source, target, moveData, true);\n\t\t\tObject.assign(target.side.slotConditions[target.position]['futuremove'], {\n\t\t\t\tduration: 3,\n\t\t\t\tmove: 'doomdesire',\n\t\t\t\tsource,\n\t\t\t\tmoveData: {\n\t\t\t\t\tid: 'doomdesire',\n\t\t\t\t\tname: \"Doom Desire\",\n\t\t\t\t\taccuracy: 85,\n\t\t\t\t\tbasePower: 0,\n\t\t\t\t\tdamage,\n\t\t\t\t\tcategory: \"Physical\",\n\t\t\t\t\tflags: { metronome: 1, futuremove: 1 },\n\t\t\t\t\teffectType: 'Move',\n\t\t\t\t\ttype: '???',\n\t\t\t\t},\n\t\t\t});\n\t\t\tthis.add('-start', source, 'Doom Desire');\n\t\t\treturn null;\n\t\t}"
   },
   "encore": {
-    "id": "encore"
+    "id": "encore",
+    "inherit": true,
+    "volatileStatus": "encore",
+    "condition": {
+      "durationCallback": "durationCallback() {\n\t\t\t\treturn this.random(3, 7);\n\t\t\t}",
+      "onStart": "onStart(target, source) {\n\t\t\t\tconst moveSlot = target.lastMove ? target.getMoveData(target.lastMove.id) : null;\n\t\t\t\tif (!target.lastMove || target.lastMove.flags['failencore'] || !moveSlot || moveSlot.pp <= 0) {\n\t\t\t\t\t// it failed\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\t\t\t\tthis.effectState.move = target.lastMove.id;\n\t\t\t\tthis.add('-start', target, 'Encore');\n\t\t\t}",
+      "onOverrideAction": "onOverrideAction(pokemon) {\n\t\t\t\treturn this.effectState.move;\n\t\t\t}",
+      "onResidualOrder": 10,
+      "onResidualSubOrder": 14,
+      "onResidual": "onResidual(target) {\n\t\t\t\tconst moveSlot = target.getMoveData(this.effectState.move);\n\t\t\t\tif (moveSlot && moveSlot.pp <= 0) {\n\t\t\t\t\t// early termination if you run out of PP\n\t\t\t\t\ttarget.removeVolatile('encore');\n\t\t\t\t}\n\t\t\t}",
+      "onEnd": "onEnd(target) {\n\t\t\t\tthis.add('-end', target, 'Encore');\n\t\t\t}",
+      "onDisableMove": "onDisableMove(pokemon) {\n\t\t\t\tif (!this.effectState.move || !pokemon.hasMove(this.effectState.move)) {\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tfor (const moveSlot of pokemon.moveSlots) {\n\t\t\t\t\tif (moveSlot.id !== this.effectState.move) {\n\t\t\t\t\t\tpokemon.disableMove(moveSlot.id);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}"
+    }
   },
   "extrasensory": {
-    "id": "extrasensory"
+    "id": "extrasensory",
+    "inherit": true,
+    "basePowerCallback": "basePowerCallback(pokemon, target) {\n\t\t\tif (target.volatiles['minimize']) return 160;\n\t\t\treturn 80;\n\t\t}"
   },
   "fakeout": {
     "id": "fakeout",
+    "inherit": true,
     "flags": {
       "protect": 1,
       "mirror": 1,
@@ -97,6 +184,7 @@
   },
   "feintattack": {
     "id": "feintattack",
+    "inherit": true,
     "flags": {
       "protect": 1,
       "mirror": 1,
@@ -104,74 +192,107 @@
     }
   },
   "flail": {
-    "id": "flail"
+    "id": "flail",
+    "inherit": true,
+    "basePowerCallback": "basePowerCallback(pokemon) {\n\t\t\tconst ratio = Math.max(Math.floor(pokemon.hp * 48 / pokemon.maxhp), 1);\n\t\t\tlet bp;\n\t\t\tif (ratio < 2) {\n\t\t\t\tbp = 200;\n\t\t\t} else if (ratio < 5) {\n\t\t\t\tbp = 150;\n\t\t\t} else if (ratio < 10) {\n\t\t\t\tbp = 100;\n\t\t\t} else if (ratio < 17) {\n\t\t\t\tbp = 80;\n\t\t\t} else if (ratio < 33) {\n\t\t\t\tbp = 40;\n\t\t\t} else {\n\t\t\t\tbp = 20;\n\t\t\t}\n\t\t\tthis.debug(`BP: ${bp}`);\n\t\t\treturn bp;\n\t\t}"
   },
   "flash": {
     "id": "flash",
+    "inherit": true,
     "accuracy": 70
   },
   "fly": {
     "id": "fly",
+    "inherit": true,
     "basePower": 70
   },
   "followme": {
-    "id": "followme"
+    "id": "followme",
+    "inherit": true,
+    "slotCondition": "followme",
+    "condition": {
+      "duration": 1,
+      "onStart": "onStart(target, source, effect) {\n\t\t\t\tthis.add('-singleturn', target, 'move: Follow Me');\n\t\t\t\tthis.effectState.slot = target.getSlot();\n\t\t\t}",
+      "onFoeRedirectTargetPriority": 1,
+      "onFoeRedirectTarget": "onFoeRedirectTarget(target, source, source2, move) {\n\t\t\t\tconst userSlot = this.getAtSlot(this.effectState.slot);\n\t\t\t\tif (this.validTarget(userSlot, source, move.target)) {\n\t\t\t\t\treturn userSlot;\n\t\t\t\t}\n\t\t\t}"
+    }
   },
   "foresight": {
     "id": "foresight",
+    "inherit": true,
     "accuracy": 100
   },
   "furycutter": {
-    "id": "furycutter"
+    "id": "furycutter",
+    "inherit": true,
+    "onHit": "onHit(target, source) {\n\t\t\tsource.addVolatile('furycutter');\n\t\t}"
   },
   "gigadrain": {
     "id": "gigadrain",
+    "inherit": true,
     "pp": 5
   },
   "glare": {
-    "id": "glare"
+    "id": "glare",
+    "inherit": true,
+    "ignoreImmunity": false
   },
   "haze": {
-    "id": "haze"
+    "id": "haze",
+    "inherit": true,
+    "onHitField": "onHitField() {\n\t\t\tthis.add('-clearallboost');\n\t\t\tfor (const pokemon of this.getAllActive()) {\n\t\t\t\tpokemon.clearBoosts();\n\t\t\t}\n\t\t}"
   },
   "hiddenpower": {
     "id": "hiddenpower",
-    "category": "Physical"
+    "inherit": true,
+    "category": "Physical",
+    "onModifyMove": "onModifyMove(move, pokemon) {\n\t\t\tmove.type = pokemon.hpType || 'Dark';\n\t\t\tconst specialTypes = ['Fire', 'Water', 'Grass', 'Ice', 'Electric', 'Dark', 'Psychic', 'Dragon'];\n\t\t\tmove.category = specialTypes.includes(move.type) ? 'Special' : 'Physical';\n\t\t}"
   },
   "highjumpkick": {
     "id": "highjumpkick",
-    "basePower": 85
+    "inherit": true,
+    "basePower": 85,
+    "onMoveFail": "onMoveFail(target, source, move) {\n\t\t\tif (target.runImmunity('Fighting')) {\n\t\t\t\tconst damage = this.actions.getDamage(source, target, move, true);\n\t\t\t\tif (typeof damage !== 'number') throw new Error(\"HJK recoil failed\");\n\t\t\t\tthis.damage(this.clampIntRange(damage / 2, 1, Math.floor(target.maxhp / 2)), source, source, move);\n\t\t\t}\n\t\t}"
   },
   "hypnosis": {
     "id": "hypnosis",
+    "inherit": true,
     "accuracy": 60
   },
   "jumpkick": {
     "id": "jumpkick",
-    "basePower": 70
+    "inherit": true,
+    "basePower": 70,
+    "onMoveFail": "onMoveFail(target, source, move) {\n\t\t\tif (target.runImmunity('Fighting')) {\n\t\t\t\tconst damage = this.actions.getDamage(source, target, move, true);\n\t\t\t\tif (typeof damage !== 'number') throw new Error(\"Jump Kick didn't recoil\");\n\t\t\t\tthis.damage(this.clampIntRange(damage / 2, 1, Math.floor(target.maxhp / 2)), source, source, move);\n\t\t\t}\n\t\t}"
   },
   "leafblade": {
     "id": "leafblade",
+    "inherit": true,
     "basePower": 70
   },
   "lockon": {
     "id": "lockon",
+    "inherit": true,
     "accuracy": 100
   },
   "megadrain": {
     "id": "megadrain",
+    "inherit": true,
     "pp": 10
   },
   "memento": {
     "id": "memento",
+    "inherit": true,
     "accuracy": true
   },
   "mindreader": {
     "id": "mindreader",
+    "inherit": true,
     "accuracy": 100
   },
   "mimic": {
     "id": "mimic",
+    "inherit": true,
     "flags": {
       "protect": 1,
       "bypasssub": 1,
@@ -182,38 +303,60 @@
     }
   },
   "mirrorcoat": {
-    "id": "mirrorcoat"
+    "id": "mirrorcoat",
+    "inherit": true,
+    "condition": {
+      "duration": 1,
+      "noCopy": true,
+      "onStart": "onStart(target, source, move) {\n\t\t\t\tthis.effectState.slot = null;\n\t\t\t\tthis.effectState.damage = 0;\n\t\t\t}",
+      "onRedirectTargetPriority": -1,
+      "onRedirectTarget": "onRedirectTarget(target, source, source2) {\n\t\t\t\tif (source !== this.effectState.target || !this.effectState.slot) return;\n\t\t\t\treturn this.getAtSlot(this.effectState.slot);\n\t\t\t}",
+      "onDamagePriority": -101,
+      "onDamage": "onDamage(damage, target, source, effect) {\n\t\t\t\tif (\n\t\t\t\t\teffect.effectType === 'Move' && !source.isAlly(target) &&\n\t\t\t\t\teffect.category === 'Special' && effect.id !== 'hiddenpower'\n\t\t\t\t) {\n\t\t\t\t\tthis.effectState.slot = source.getSlot();\n\t\t\t\t\tthis.effectState.damage = 2 * damage;\n\t\t\t\t}\n\t\t\t}"
+    }
   },
   "mirrormove": {
     "id": "mirrormove",
+    "inherit": true,
     "flags": {
       "metronome": 1,
       "failencore": 1,
       "nosleeptalk": 1,
       "noassist": 1
-    }
+    },
+    "onTryHit": "onTryHit() { }",
+    "onHit": "onHit(pokemon) {\n\t\t\tconst noMirror = [\n\t\t\t\t'assist', 'curse', 'doomdesire', 'focuspunch', 'futuresight', 'magiccoat', 'metronome', 'mimic', 'mirrormove', 'naturepower', 'psychup', 'roleplay', 'sketch', 'sleeptalk', 'spikes', 'spitup', 'taunt', 'teeterdance', 'transform',\n\t\t\t];\n\t\t\tconst lastAttackedBy = pokemon.getLastAttackedBy();\n\t\t\tif (!lastAttackedBy?.source.lastMove || !lastAttackedBy.move) {\n\t\t\t\treturn false;\n\t\t\t}\n\t\t\tif (noMirror.includes(lastAttackedBy.move) || !lastAttackedBy.source.hasMove(lastAttackedBy.move)) {\n\t\t\t\treturn false;\n\t\t\t}\n\t\t\tthis.actions.useMove(lastAttackedBy.move, pokemon);\n\t\t}",
+    "target": "self"
   },
   "naturepower": {
     "id": "naturepower",
-    "accuracy": 95
+    "inherit": true,
+    "accuracy": 95,
+    "onHit": "onHit(target) {\n\t\t\tthis.actions.useMove('swift', target);\n\t\t}"
   },
   "needlearm": {
-    "id": "needlearm"
+    "id": "needlearm",
+    "inherit": true,
+    "basePowerCallback": "basePowerCallback(pokemon, target) {\n\t\t\tif (target.volatiles['minimize']) return 120;\n\t\t\treturn 60;\n\t\t}"
   },
   "nightmare": {
     "id": "nightmare",
+    "inherit": true,
     "accuracy": true
   },
   "odorsleuth": {
     "id": "odorsleuth",
+    "inherit": true,
     "accuracy": 100
   },
   "outrage": {
     "id": "outrage",
+    "inherit": true,
     "basePower": 90
   },
   "overheat": {
     "id": "overheat",
+    "inherit": true,
     "flags": {
       "contact": 1,
       "protect": 1,
@@ -223,21 +366,27 @@
   },
   "petaldance": {
     "id": "petaldance",
+    "inherit": true,
     "basePower": 70
   },
   "recover": {
     "id": "recover",
+    "inherit": true,
     "pp": 20
   },
   "reversal": {
-    "id": "reversal"
+    "id": "reversal",
+    "inherit": true,
+    "basePowerCallback": "basePowerCallback(pokemon) {\n\t\t\tconst ratio = Math.max(Math.floor(pokemon.hp * 48 / pokemon.maxhp), 1);\n\t\t\tlet bp;\n\t\t\tif (ratio < 2) {\n\t\t\t\tbp = 200;\n\t\t\t} else if (ratio < 5) {\n\t\t\t\tbp = 150;\n\t\t\t} else if (ratio < 10) {\n\t\t\t\tbp = 100;\n\t\t\t} else if (ratio < 17) {\n\t\t\t\tbp = 80;\n\t\t\t} else if (ratio < 33) {\n\t\t\t\tbp = 40;\n\t\t\t} else {\n\t\t\t\tbp = 20;\n\t\t\t}\n\t\t\tthis.debug(`BP: ${bp}`);\n\t\t\treturn bp;\n\t\t}"
   },
   "rocksmash": {
     "id": "rocksmash",
+    "inherit": true,
     "basePower": 20
   },
   "sketch": {
     "id": "sketch",
+    "inherit": true,
     "flags": {
       "bypasssub": 1,
       "failencore": 1,
@@ -247,18 +396,29 @@
     }
   },
   "sleeptalk": {
-    "id": "sleeptalk"
+    "id": "sleeptalk",
+    "inherit": true,
+    "onHit": "onHit(pokemon) {\n\t\t\tconst moves = [];\n\t\t\tfor (const moveSlot of pokemon.moveSlots) {\n\t\t\t\tconst moveid = moveSlot.id;\n\t\t\t\tconst pp = moveSlot.pp;\n\t\t\t\tconst move = this.dex.moves.get(moveid);\n\t\t\t\tif (moveid && !move.flags['nosleeptalk'] && !move.flags['charge']) {\n\t\t\t\t\tmoves.push({ move: moveid, pp });\n\t\t\t\t}\n\t\t\t}\n\t\t\tif (!moves.length) {\n\t\t\t\treturn false;\n\t\t\t}\n\t\t\tconst randomMove = this.sample(moves);\n\t\t\tif (!randomMove.pp) {\n\t\t\t\tthis.add('cant', pokemon, 'nopp', randomMove.move);\n\t\t\t\treturn;\n\t\t\t}\n\t\t\tthis.actions.useMove(randomMove.move, pokemon);\n\t\t}"
   },
   "spite": {
-    "id": "spite"
+    "id": "spite",
+    "inherit": true,
+    "onHit": "onHit(target) {\n\t\t\tconst roll = this.random(2, 6);\n\t\t\tif (target.lastMove && target.deductPP(target.lastMove.id, roll)) {\n\t\t\t\tthis.add(\"-activate\", target, 'move: Spite', target.lastMove.id, roll);\n\t\t\t\treturn;\n\t\t\t}\n\t\t\treturn false;\n\t\t}"
   },
   "stockpile": {
     "id": "stockpile",
-    "pp": 10
+    "inherit": true,
+    "pp": 10,
+    "condition": {
+      "noCopy": true,
+      "onStart": "onStart(target) {\n\t\t\t\tthis.effectState.layers = 1;\n\t\t\t\tthis.add('-start', target, 'stockpile' + this.effectState.layers);\n\t\t\t}",
+      "onRestart": "onRestart(target) {\n\t\t\t\tif (this.effectState.layers >= 3) return false;\n\t\t\t\tthis.effectState.layers++;\n\t\t\t\tthis.add('-start', target, 'stockpile' + this.effectState.layers);\n\t\t\t}",
+      "onEnd": "onEnd(target) {\n\t\t\t\tthis.effectState.layers = 0;\n\t\t\t\tthis.add('-end', target, 'Stockpile');\n\t\t\t}"
+    }
   },
   "struggle": {
     "id": "struggle",
-    "accuracy": 100,
+    "inherit": true,
     "flags": {
       "contact": 1,
       "protect": 1,
@@ -266,21 +426,40 @@
       "failencore": 1,
       "failmimic": 1,
       "nosketch": 1
-    }
+    },
+    "accuracy": 100,
+    "recoil": [
+      1,
+      4
+    ],
+    "struggleRecoil": false
   },
   "surf": {
-    "id": "surf"
+    "id": "surf",
+    "inherit": true,
+    "target": "allAdjacentFoes"
   },
   "taunt": {
     "id": "taunt",
+    "inherit": true,
     "flags": {
       "protect": 1,
       "bypasssub": 1,
       "metronome": 1
+    },
+    "condition": {
+      "duration": 2,
+      "onStart": "onStart(target) {\n\t\t\t\tthis.add('-start', target, 'move: Taunt');\n\t\t\t}",
+      "onResidualOrder": 10,
+      "onResidualSubOrder": 15,
+      "onEnd": "onEnd(target) {\n\t\t\t\tthis.add('-end', target, 'move: Taunt', '[silent]');\n\t\t\t}",
+      "onDisableMove": "onDisableMove(pokemon) {\n\t\t\t\tfor (const moveSlot of pokemon.moveSlots) {\n\t\t\t\t\tif (this.dex.moves.get(moveSlot.move).category === 'Status') {\n\t\t\t\t\t\tpokemon.disableMove(moveSlot.id);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}",
+      "onBeforeMove": "onBeforeMove(attacker, defender, move) {\n\t\t\t\tif (move.category === 'Status') {\n\t\t\t\t\tthis.add('cant', attacker, 'move: Taunt', move);\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\t\t\t}"
     }
   },
   "teeterdance": {
     "id": "teeterdance",
+    "inherit": true,
     "flags": {
       "protect": 1,
       "metronome": 1
@@ -288,6 +467,7 @@
   },
   "tickle": {
     "id": "tickle",
+    "inherit": true,
     "flags": {
       "protect": 1,
       "reflectable": 1,
@@ -297,23 +477,41 @@
     }
   },
   "uproar": {
-    "id": "uproar"
+    "id": "uproar",
+    "inherit": true,
+    "condition": {
+      "onStart": "onStart(target) {\n\t\t\t\tthis.add('-start', target, 'Uproar');\n\t\t\t\t// 2-5 turns\n\t\t\t\tthis.effectState.duration = this.random(2, 6);\n\t\t\t}",
+      "onResidual": "onResidual(target) {\n\t\t\t\tif (target.volatiles['throatchop']) {\n\t\t\t\t\ttarget.removeVolatile('uproar');\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tif (target.lastMove && target.lastMove.id === 'struggle') {\n\t\t\t\t\t// don't lock\n\t\t\t\t\tdelete target.volatiles['uproar'];\n\t\t\t\t}\n\t\t\t\tthis.add('-start', target, 'Uproar', '[upkeep]');\n\t\t\t}",
+      "onResidualOrder": 10,
+      "onResidualSubOrder": 11,
+      "onEnd": "onEnd(target) {\n\t\t\t\tthis.add('-end', target, 'Uproar');\n\t\t\t}",
+      "onLockMove": "uproar",
+      "onAnySetStatus": "onAnySetStatus(status, pokemon) {\n\t\t\t\tif (status.id === 'slp') {\n\t\t\t\t\tif (pokemon === this.effectState.target) {\n\t\t\t\t\t\tthis.add('-fail', pokemon, 'slp', '[from] Uproar', '[msg]');\n\t\t\t\t\t} else {\n\t\t\t\t\t\tthis.add('-fail', pokemon, 'slp', '[from] Uproar');\n\t\t\t\t\t}\n\t\t\t\t\treturn null;\n\t\t\t\t}\n\t\t\t}"
+    }
   },
   "vinewhip": {
     "id": "vinewhip",
+    "inherit": true,
     "pp": 10
   },
   "volttackle": {
-    "id": "volttackle"
+    "id": "volttackle",
+    "inherit": true,
+    "secondary": null
   },
   "waterfall": {
-    "id": "waterfall"
+    "id": "waterfall",
+    "inherit": true,
+    "secondary": null
   },
   "weatherball": {
-    "id": "weatherball"
+    "id": "weatherball",
+    "inherit": true,
+    "onModifyMove": "onModifyMove(move) {\n\t\t\tswitch (this.field.effectiveWeather()) {\n\t\t\tcase 'sunnyday':\n\t\t\t\tmove.type = 'Fire';\n\t\t\t\tmove.category = 'Special';\n\t\t\t\tbreak;\n\t\t\tcase 'raindance':\n\t\t\t\tmove.type = 'Water';\n\t\t\t\tmove.category = 'Special';\n\t\t\t\tbreak;\n\t\t\tcase 'sandstorm':\n\t\t\t\tmove.type = 'Rock';\n\t\t\t\tbreak;\n\t\t\tcase 'hail':\n\t\t\t\tmove.type = 'Ice';\n\t\t\t\tmove.category = 'Special';\n\t\t\t\tbreak;\n\t\t\t}\n\t\t\tif (this.field.effectiveWeather()) move.basePower *= 2;\n\t\t}"
   },
   "zapcannon": {
     "id": "zapcannon",
+    "inherit": true,
     "basePower": 100
   }
 }
