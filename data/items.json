@@ -288,5 +288,11 @@
     "inherit": true,
     "onResidualOrder": 10,
     "onResidualSubOrder": 4
+  },
+  "thickclub": {
+    "id": "thickclub",
+    "inherit": true,
+    "species_only": "Marowak",
+    "boost_stats": {"atk": 2}
   }
 }
