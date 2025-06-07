@@ -17,6 +17,7 @@ def parse_showdown(text: str, moves_db: dict[str, Pokemon]|None=None) -> Team:
     """Parse a Showdown-exported team string into a Team."""
     if moves_db is None:
         moves_db = load_moves()
+    canon_map = { _canon(name): mv for name, mv in moves_db.items() }
     blocks = [b.strip() for b in text.strip().split('\n\n') if b.strip()]
     team_members = []
     for block in blocks:
@@ -58,9 +59,11 @@ def parse_showdown(text: str, moves_db: dict[str, Pokemon]|None=None) -> Team:
             elif line.endswith('Nature'):
                 nature = line.split()[0]
             elif line.startswith('-'):
-                move_name = line[1:].strip().lower()
-                if move_name in moves_db:
-                    moves.append(deepcopy(moves_db[move_name]))
+                move_name = line[1:].strip()
+                canon = _canon(move_name)
+                mv = canon_map.get(canon)
+                if mv:
+                    moves.append(deepcopy(mv))
         base_stats = get_base_stats(name)
         types = get_pokemon_types(name)
         p = Pokemon(name=name, level=level, types=types, base_stats=base_stats,

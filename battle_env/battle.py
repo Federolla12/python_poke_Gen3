@@ -75,8 +75,15 @@ class Battle:
                         mon.remove_volatile(v)
         if action1.get('type') == 'switch':
             self.team1.switch(action1['index'])
-            self.team1.active().ability.on_switch_in(self)
-            self.team1.active().item.on_switch_in(self)
+            mon = self.team1.active()
+            if isinstance(mon.ability, str):
+                cls = abilities_map.get(mon.ability, Ability)
+                mon.ability = cls(mon)
+            if isinstance(mon.item, str) or mon.item is None:
+                itm = items_map.get(mon.item, Item)
+                mon.item = itm(mon)
+            mon.ability.on_switch_in(self)
+            mon.item.on_switch_in(self)
             opp_haz = self.team1.hazards
             if 'spikes' in opp_haz:
                 layers = opp_haz['spikes']
@@ -88,8 +95,15 @@ class Battle:
 
         if action2.get('type') == 'switch':
             self.team2.switch(action2['index'])
-            self.team2.active().ability.on_switch_in(self)
-            self.team2.active().item.on_switch_in(self)
+            mon = self.team2.active()
+            if isinstance(mon.ability, str):
+                cls = abilities_map.get(mon.ability, Ability)
+                mon.ability = cls(mon)
+            if isinstance(mon.item, str) or mon.item is None:
+                itm = items_map.get(mon.item, Item)
+                mon.item = itm(mon)
+            mon.ability.on_switch_in(self)
+            mon.item.on_switch_in(self)
             opp_haz = self.team2.hazards
             if 'spikes' in opp_haz:
                 layers = opp_haz['spikes']
@@ -203,8 +217,14 @@ class Battle:
                 dmg //= 2
             if def_team.screens.get('lightscreen') and move.category == 'Special':
                 dmg //= 2
-            target.apply_damage(dmg)
-            self.log(f"{attacker.name} used {move.name} and dealt {dmg} damage to {target.name}!")
+            if move.name.lower() == 'rest':
+                attacker.heal(attacker.stats['hp'])
+                attacker.heal_status()
+                attacker.set_status('slp')
+                self.log(f"{attacker.name} used Rest and fell asleep!")
+            else:
+                target.apply_damage(dmg)
+                self.log(f"{attacker.name} used {move.name} and dealt {dmg} damage to {target.name}!")
 
             # on_after_damage hooks
             attacker.ability.on_after_damage(move, attacker, target, dmg, self)
