@@ -129,24 +129,22 @@ def load_moves(path: str | Path | None = None) -> dict[str, Move]:
             category=meta.get("category", "Physical"),
             accuracy=meta.get("accuracy", 100),
             priority=meta.get("priority", 0),
-            max_pp=meta.get("pp", 1),
+            max_pp=meta.get("pp", 0),
         )
         mv.id = meta.get("id", ident)
         mv.flags = meta.get("flags", {})
         mv.metadata = meta
-        # fill missing data via local spreadsheet or PokeAPI
-        if not mv.power or mv.accuracy is None:
-            fetched = _get_move(mv.name)
-            if fetched:
-                mv.power = mv.power or fetched.get("power", 0)
-                mv.accuracy = (
-                    mv.accuracy
-                    if mv.accuracy is not None
-                    else fetched.get("accuracy", 100)
-                )
+        # override stats using local spreadsheet
+        fetched = _get_move(mv.name)
+        if fetched:
+            mv.power = fetched.get("power", mv.power)
+            mv.accuracy = fetched.get("accuracy", mv.accuracy if mv.accuracy is not None else 100)
+            mv.max_pp = fetched.get("pp", mv.max_pp or 1)
+            mv.current_pp = mv.max_pp
+            if mv.type == "Normal" and "type" not in meta:
                 mv.type = fetched.get("type", mv.type)
-                mv.max_pp = mv.max_pp or fetched.get("pp", 1)
-                mv.priority = mv.priority or fetched.get("priority", 0)
+            if "priority" not in meta:
+                mv.priority = fetched.get("priority", mv.priority)
         # determine category using Gen 3 rules
         mv.category = (
             "Status"

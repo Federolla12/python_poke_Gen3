@@ -34,9 +34,16 @@ class Item:
     def on_start(self, battle: 'Battle'):
         boosts = self.metadata.get('boost_stats')
         allowed = self.metadata.get('species_only')
-        if boosts and (allowed is None or self.owner.name == allowed):
-            for stat, mult in boosts.items():
-                self.owner.stats[stat] = int(self.owner.stats[stat] * mult)
+        if boosts:
+            if allowed is None:
+                apply = True
+            elif isinstance(allowed, list):
+                apply = self.owner.name in allowed
+            else:
+                apply = self.owner.name == allowed
+            if apply:
+                for stat, mult in boosts.items():
+                    self.owner.stats[stat] = int(self.owner.stats[stat] * mult)
 
     def on_switch_in(self, battle: 'Battle'):
         self.on_start(battle)
@@ -50,6 +57,11 @@ class Item:
             if random.random() < chance:
                 defender.add_volatile('flinch', self.owner, duration=1)
                 battle.log(f"{defender.name} flinched due to {self.name}!")
+        survive = self.metadata.get('survive_chance')
+        if survive and defender is self.owner and self.owner.current_hp == 0:
+            if random.random() < survive:
+                self.owner.current_hp = 1
+                battle.log(f"{self.owner.name} hung on using {self.name}!")
 
     def on_end_of_turn(self, battle: 'Battle'):
         threshold = self.metadata.get('heal_threshold')

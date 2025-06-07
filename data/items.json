@@ -18,19 +18,27 @@
   },
   "blackbelt": {
     "id": "blackbelt",
-    "inherit": true
+    "inherit": true,
+    "boost_type": "Fighting",
+    "boost_multiplier": 1.1
   },
   "blackglasses": {
     "id": "blackglasses",
-    "inherit": true
+    "inherit": true,
+    "boost_type": "Dark",
+    "boost_multiplier": 1.1
   },
   "charcoal": {
     "id": "charcoal",
-    "inherit": true
+    "inherit": true,
+    "boost_type": "Fire",
+    "boost_multiplier": 1.1
   },
   "dragonfang": {
     "id": "dragonfang",
-    "inherit": true
+    "inherit": true,
+    "boost_type": "Dragon",
+    "boost_multiplier": 1.1
   },
   "enigmaberry": {
     "id": "enigmaberry",
@@ -60,7 +68,9 @@
   },
   "hardstone": {
     "id": "hardstone",
-    "inherit": true
+    "inherit": true,
+    "boost_type": "Rock",
+    "boost_multiplier": 1.1
   },
   "heavyball": {
     "id": "heavyball",
@@ -75,7 +85,8 @@
   },
   "kingsrock": {
     "id": "kingsrock",
-    "inherit": true
+    "inherit": true,
+    "flinch_chance": 0.1
   },
   "lansatberry": {
     "id": "lansatberry",
@@ -114,7 +125,9 @@
   },
   "magnet": {
     "id": "magnet",
-    "inherit": true
+    "inherit": true,
+    "boost_type": "Electric",
+    "boost_multiplier": 1.1
   },
   "magoberry": {
     "id": "magoberry",
@@ -124,11 +137,15 @@
   },
   "metalcoat": {
     "id": "metalcoat",
-    "inherit": true
+    "inherit": true,
+    "boost_type": "Steel",
+    "boost_multiplier": 1.1
   },
   "miracleseed": {
     "id": "miracleseed",
-    "inherit": true
+    "inherit": true,
+    "boost_type": "Grass",
+    "boost_multiplier": 1.1
   },
   "moonball": {
     "id": "moonball",
@@ -137,11 +154,15 @@
   },
   "mysticwater": {
     "id": "mysticwater",
-    "inherit": true
+    "inherit": true,
+    "boost_type": "Water",
+    "boost_multiplier": 1.1
   },
   "nevermeltice": {
     "id": "nevermeltice",
-    "inherit": true
+    "inherit": true,
+    "boost_type": "Ice",
+    "boost_multiplier": 1.1
   },
   "oranberry": {
     "id": "oranberry",
@@ -157,11 +178,14 @@
   },
   "poisonbarb": {
     "id": "poisonbarb",
-    "inherit": true
+    "inherit": true,
+    "boost_type": "Poison",
+    "boost_multiplier": 1.1
   },
   "quickclaw": {
     "id": "quickclaw",
-    "inherit": true
+    "inherit": true,
+    "quickclaw_chance": 0.2
   },
   "salacberry": {
     "id": "salacberry",
@@ -172,20 +196,26 @@
   "seaincense": {
     "id": "seaincense",
     "inherit": true,
-    "onModifySpAPriority": 1
+    "boost_type": "Water",
+    "boost_multiplier": 1.05
   },
   "sharpbeak": {
     "id": "sharpbeak",
-    "inherit": true
+    "inherit": true,
+    "boost_type": "Flying",
+    "boost_multiplier": 1.1
   },
   "silkscarf": {
     "id": "silkscarf",
     "inherit": true,
-    "onModifyAtkPriority": 1
+    "boost_type": "Normal",
+    "boost_multiplier": 1.1
   },
   "silverpowder": {
     "id": "silverpowder",
-    "inherit": true
+    "inherit": true,
+    "boost_type": "Bug",
+    "boost_multiplier": 1.1
   },
   "sitrusberry": {
     "id": "sitrusberry",
@@ -195,11 +225,15 @@
   },
   "softsand": {
     "id": "softsand",
-    "inherit": true
+    "inherit": true,
+    "boost_type": "Ground",
+    "boost_multiplier": 1.1
   },
   "spelltag": {
     "id": "spelltag",
-    "inherit": true
+    "inherit": true,
+    "boost_type": "Ghost",
+    "boost_multiplier": 1.1
   },
   "sportball": {
     "id": "sportball",
@@ -214,7 +248,9 @@
   },
   "twistedspoon": {
     "id": "twistedspoon",
-    "inherit": true
+    "inherit": true,
+    "boost_type": "Psychic",
+    "boost_multiplier": 1.1
   },
   "wikiberry": {
     "id": "wikiberry",
@@ -228,17 +264,21 @@
   },
   "dragonscale": {
     "id": "dragonscale",
-    "inherit": true
+    "inherit": true,
+    "boost_type": "Dragon",
+    "boost_multiplier": 1.1
   },
   "focusband": {
     "id": "focusband",
-    "inherit": true
+    "inherit": true,
+    "survive_chance": 0.117
   },
   "leftovers": {
     "id": "leftovers",
     "inherit": true,
     "onResidualOrder": 5,
-    "onResidualSubOrder": 1
+    "onResidualSubOrder": 1,
+    "heal_fraction": 16
   },
   "luckypunch": {
     "id": "luckypunch",
@@ -256,7 +296,9 @@
   },
   "thickclub": {
     "id": "thickclub",
-    "inherit": true
+    "inherit": true,
+    "boost_stats": {"atk": 2},
+    "species_only": ["Cubone", "Marowak"]
   },
   "berserkgene": {
     "id": "berserkgene",
@@ -306,11 +348,15 @@
   "pinkbow": {
     "id": "pinkbow",
     "inherit": true,
+    "boost_type": "Normal",
+    "boost_multiplier": 1.1,
     "isNonstandard": null
   },
   "polkadotbow": {
     "id": "polkadotbow",
     "inherit": true,
+    "boost_type": "Normal",
+    "boost_multiplier": 1.1,
     "isNonstandard": null
   },
   "przcureberry": {
